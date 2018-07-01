@@ -4,10 +4,24 @@ export default class Graphics {
     this.canvas.style.background = '#000000'
     this.canvas.style.cursor = 'none'
     this.ctx = canvas.getContext('2d')
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
   render(state) {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    this.renderBall(state.ball)
     this.renderPaddle(state.paddle)
+  }
+  renderBall(ball) {
+    if (!ball) return
+    this.ctx.save()
+    this.ctx.translate(ball.x, ball.y)
+    this.ctx.fillStyle = '#00ffff'
+    this.ctx.moveTo(ball.r, 0)
+    this.ctx.beginPath()
+    this.ctx.arc(0, 0, ball.r, 0, Math.PI * 2)
+    this.ctx.fill()
+    this.ctx.restore()
   }
   renderPaddle(paddle) {
     this.ctx.save()
