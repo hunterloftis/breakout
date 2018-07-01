@@ -17,10 +17,7 @@ export default class Graphics {
     this.ctx.save()
     this.ctx.translate(ball.x, ball.y)
     this.ctx.fillStyle = '#00ffff'
-    this.ctx.moveTo(ball.r, 0)
-    this.ctx.beginPath()
-    this.ctx.arc(0, 0, ball.r, 0, Math.PI * 2)
-    this.ctx.fill()
+    this.ctx.fillRect(-3, -3, 7, 7)
     this.ctx.restore()
   }
   renderPaddle(paddle) {
