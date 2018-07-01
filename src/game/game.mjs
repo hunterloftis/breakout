@@ -15,9 +15,7 @@ export default class Game {
     if (!this.ball) {
       this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
     }
-    this.ball.integrate(tick)
-    this.ball.constrainIn(this.box())
-    this.ball.constrainOut(this.paddle.box())
+    this.ball.move(tick, this.box(), this.paddle.box())
   }
   box() {
     return { left: 0, right: this.width, top: 0, bottom: this.height }

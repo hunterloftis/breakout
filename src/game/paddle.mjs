@@ -1,5 +1,5 @@
 export default class Paddle {
-  constructor(x, y, width = 60, height = 20) {
+  constructor(x, y, width = 60, height = 10) {
     this.x = x
     this.y = y
     this.width = width

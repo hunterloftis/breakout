@@ -27,7 +27,7 @@ export default class Graphics {
     this.ctx.save()
     this.ctx.translate(paddle.x, paddle.y)
     this.ctx.fillStyle = '#ffffff'
-    this.ctx.fillRect(-paddle.width * 0.5, -paddle.height * 0.5, paddle.width, 10)
+    this.ctx.fillRect(-paddle.width * 0.5, -paddle.height * 0.5, paddle.width, paddle.height)
     this.ctx.restore()
   }
 }
