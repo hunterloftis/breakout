@@ -5,7 +5,7 @@ export default class Game {
   constructor(width, height) {
     this.width = width
     this.height = height
-    this.paddle = new Paddle(width * 0.5, this.height - 10)
+    this.paddle = new Paddle(width * 0.5, this.height - 30)
     this.ball = undefined
   }
   moveTo(x) {
