@@ -32,6 +32,7 @@ export default class Ball {
       this.theta = Math.atan2(dy, -Math.abs(dx))
     }
   }
+  // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
   intersect(box, limit, interior = false) {
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
@@ -41,34 +42,34 @@ export default class Ball {
       return Hit(Hit.IN, dx, dy, limit)
     }
 
-    const tleft = (box.left - this.x) * (1 / dx)
-    const tright = (box.right - this.x) * (1 / dx)
-    let tmin = Math.min(tleft, tright)
-    let tmax = Math.max(tleft, tright)
+    let tmin = 0
+    let tmax = limit
 
+    const invX = 1 / dx
+    let tleft = (box.left - this.x) * invX
+    let tright = (box.right - this.x) * invX
+    tmin = Math.max(tmin, Math.min(tleft, tright))
+    tmax = Math.min(tmax, Math.max(tleft, tright))
     if (tmax < tmin) {
       return Hit(Hit.NONE, dx, dy, limit)
     }
 
-    const ttop = (box.top - this.y) * (1 / dy)
-    const tbottom = (box.bottom - this.y) * (1 / dy)
+    const invY = 1 / dy
+    let ttop = (box.top - this.y) * invY
+    let tbottom = (box.bottom - this.y) * invY
     tmin = Math.max(tmin, Math.min(ttop, tbottom))
     tmax = Math.min(tmax, Math.max(ttop, tbottom))
-
     if (tmax < tmin) {
       return Hit(Hit.NONE, dx, dy, limit)
     }
 
-    if (tmin < 0 && tmax < 0) {
+    let hit
+    if (tmin > 0) hit = tmin
+    else if (tmax > 0) hit = tmax
+    else {
       return Hit(Hit.NONE, dx, dy, limit)
     }
 
-    const min = [tleft, tright, ttop, tbottom].filter(n => n >= 0).sort((a, b) => a - b)
-    if (min.length === 0 || min[0] > limit) {
-      return Hit(Hit.NONE, dx, dy, limit)
-    }
-
-    const hit = min[0]
     if (hit === tleft) {
       return Hit(inside ? Hit.IN_LEFT : Hit.LEFT, dx, dy, hit * BIAS)
     }
@@ -78,7 +79,10 @@ export default class Ball {
     else if (hit === ttop) {
       return Hit(inside ? Hit.IN_TOP : Hit.TOP, dx, dy, hit * BIAS)
     }
-    return Hit(inside ? Hit.IN_BOTTOM : Hit.BOTTOM, dx, dy, hit * BIAS)
+    else if (hit === tbottom) {
+      return Hit(inside ? Hit.IN_BOTTOM : Hit.BOTTOM, dx, dy, hit * BIAS)
+    }
+    return Hit(Hit.NONE, dx, dy, limit)
   }
 }
 
