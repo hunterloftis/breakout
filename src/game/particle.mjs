@@ -8,6 +8,13 @@ export default class Particle {
     this.x += dx * 1 + Math.random() * 2 - 1
     this.y += dy * 3 + Math.random() * 2 - 1
   }
+  state() {
+    return {
+      x: this.x,
+      y: this.y,
+      color: this.color
+    }
+  }
   update(delta) {
     const secs = delta / 1000
     const vx = this.x - this.x1

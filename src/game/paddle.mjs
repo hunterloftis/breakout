@@ -5,6 +5,14 @@ export default class Paddle {
     this.width = width
     this.height = height
   }
+  state() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height
+    }
+  }
   moveTo(x, y, minX, maxX) {
     const min = minX + this.width * 0.5
     const max = maxX - this.width * 0.5

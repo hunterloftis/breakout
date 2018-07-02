@@ -10,29 +10,37 @@ export default class Ball {
     this.theta = Math.PI * (1.1 + Math.random() * 0.8)
     this.destroyed = false
   }
-  trail(tick) {
+  state() {
+    const v = this.velocity(1)
+    return {
+      x: this.x,
+      y: this.y,
+      vx: v.vx,
+      vy: v.vy,
+      destroyed: this.destroyed
+    }
+  }
+  velocity(tick) {
     const secs = tick / 1000
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
     const v = Math.min(500, (this.v + this.bounce * ACCELERATION) * secs)
-    return { x: dx * -v, y: dy * -v }
+    return { v, dx, dy, vx: dx * v, vy: dy * v }
   }
   move(tick, container, paddle, bricks) {
-    const secs = tick / 1000
-    const dx = Math.cos(this.theta)
-    const dy = Math.sin(this.theta)
-    const v = Math.min(500, (this.v + this.bounce * ACCELERATION) * secs)
-
+    const { v, dx, dy } = this.velocity(tick)
     const wallHit = this.intersect(container, v, true)
     const paddleHit = this.intersect(paddle, v)
     const brickHits = bricks.map(b => this.intersect(b, v))
-    const hit = [wallHit, paddleHit].concat(brickHits).sort((a, b) => a.dist - b.dist)[0]
+    const hits = [wallHit, paddleHit].concat(brickHits)
+    const hit = hits.sort((a, b) => a.dist - b.dist)[0]
 
     let intensity = 0
     let particles = []
 
     this.x += hit.dx
     this.y += hit.dy
+
     if (hit.type === Hit.IN_TOP || hit.type === Hit.BOTTOM) {
       this.theta = Math.atan2(Math.abs(dy), dx)
     }

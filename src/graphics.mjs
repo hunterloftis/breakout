@@ -20,7 +20,7 @@ export default class Graphics {
     this.ctx.restore()
   }
   renderBrick(brick) {
-    if (brick.disabled) return
+    if (!brick) return
     this.ctx.save()
     this.ctx.translate(brick.x, brick.y)
     this.ctx.beginPath()
@@ -39,13 +39,6 @@ export default class Graphics {
     if (!ball) return
     this.ctx.save()
     this.ctx.translate(ball.x, ball.y)
-    this.ctx.beginPath()
-    this.ctx.strokeStyle = '#4C5B5C'
-    this.ctx.lineWidth = 2
-    this.ctx.moveTo(0, 0)
-    const trail = ball.trail(delta)
-    this.ctx.lineTo(trail.x, trail.y)
-    this.ctx.stroke()
     this.ctx.fillStyle = '#ffffff'
     this.ctx.fillRect(-3, -3, 7, 7)
     this.ctx.restore()

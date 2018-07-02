@@ -10,7 +10,7 @@ const graphics = new Graphics(canvas)
 const game = new Game(canvas.width, canvas.height)
 
 clock.fixedUpdate((tick, time) => {
-  game.moveTo(mouse.x)
+  game.movePaddle(mouse.x)
   game.fixedUpdate(tick, time)
 })
 

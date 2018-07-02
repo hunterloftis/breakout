@@ -12,7 +12,7 @@ export default class Game {
     this.intensity = 0
     this.particles = []
   }
-  moveTo(x) {
+  movePaddle(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
   }
   fixedUpdate(tick, time) {
@@ -33,11 +33,11 @@ export default class Game {
   }
   state() {
     return {
-      paddle: this.paddle,
-      ball: this.ball,
-      bricks: this.bricks,
+      paddle: this.paddle.state(),
+      ball: this.ball && this.ball.state(),
+      bricks: this.bricks.map(b => b.state()),
       intensity: this.intensity,
-      particles: this.particles,
+      particles: this.particles.map(p => p.state()),
     }
   }
 }

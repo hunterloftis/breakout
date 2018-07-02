@@ -11,6 +11,18 @@ export default class Brick {
     this.disabled = Math.random() < 0.2
     this.color = COLORS[Math.floor(Math.random() * COLORS.length)]
   }
+  state() {
+    if (this.disabled) {
+      return undefined
+    }
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+      color: this.color
+    }
+  }
   box() {
     if (this.disabled) {
       return undefined
