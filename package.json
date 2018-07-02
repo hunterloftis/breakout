@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "http-server -c 0 -p 3000"
+    "start": "http-server -c 0",
+    "dev": "http-server -c 0 -p 3000"
   },
   "keywords": [],
   "author": "",
