@@ -15,5 +15,6 @@ clock.fixedUpdate((tick, time) => {
 })
 
 clock.update((delta, time) => {
+  game.update(delta, time)
   graphics.render(game.state())
 })

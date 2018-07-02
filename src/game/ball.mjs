@@ -1,8 +1,8 @@
 const BIAS = 1e-6
-const ACCELERATION = 10
+const ACCELERATION = 5
 
 export default class Ball {
-  constructor(minX, maxX, y, v = 250) {
+  constructor(minX, maxX, y, v = 300) {
     this.x = minX + (maxX - minX) * Math.random()
     this.y = y
     this.v = v
@@ -21,6 +21,8 @@ export default class Ball {
     const brickHits = bricks.map(b => this.intersect(b, v))
     const hit = [wallHit, paddleHit].concat(brickHits).sort((a, b) => a.dist - b.dist)[0]
 
+    let intensity = 0
+
     this.x += hit.dx
     this.y += hit.dy
     if (hit.type === Hit.IN_TOP || hit.type === Hit.BOTTOM) {
@@ -30,7 +32,7 @@ export default class Ball {
       this.theta = Math.atan2(-Math.abs(dy), dx)
       if (hit.target === paddle) {
         const px = (this.x - paddle.x) / (paddle.width * 0.5)
-        this.theta += Math.PI * 0.25 * px
+        this.theta += Math.PI * 0.33 * px
         while (this.theta < 0) this.theta += Math.PI * 2
         while (this.theta > Math.PI * 2) this.theta -= Math.PI * 2
         this.theta = Math.min(1.9 * Math.PI, this.theta)
@@ -46,10 +48,15 @@ export default class Ball {
     else if (hit.type === Hit.IN_RIGHT || hit.type === Hit.LEFT) {
       this.theta = Math.atan2(dy, -Math.abs(dx))
     }
-    if (hit.target.onHit) hit.target.onHit()
     if (hit.type !== Hit.NONE && hit.type !== Hit.IN) {
       this.bounce++
+      intensity += 1
+      if (hit.target.onHit) {
+        hit.target.onHit()
+        intensity += 5
+      }
     }
+    return intensity
   }
   // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
   intersect(target, limit, interior = false) {

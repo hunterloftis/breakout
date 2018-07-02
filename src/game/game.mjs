@@ -9,6 +9,7 @@ export default class Game {
     this.paddle = new Paddle(width * 0.5, this.height - 30)
     this.ball = undefined
     this.bricks = bricks(0, height * 0.1, width, height * 0.5, 20, 7)
+    this.intensity = 0
   }
   moveTo(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
@@ -17,8 +18,11 @@ export default class Game {
     if (!this.ball) {
       this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
     }
-    this.ball.move(tick, this, this.paddle, this.bricks)
+    this.intensity += this.ball.move(tick, this, this.paddle, this.bricks)
     if (this.ball.destroyed) this.ball = undefined
+  }
+  update(delta, time) {
+    this.intensity = Math.max(0, this.intensity * 0.95)
   }
   box() {
     return { left: 0, right: this.width, top: 0, bottom: this.height }
@@ -27,7 +31,8 @@ export default class Game {
     return {
       paddle: this.paddle,
       ball: this.ball,
-      bricks: this.bricks
+      bricks: this.bricks,
+      intensity: this.intensity
     }
   }
 }

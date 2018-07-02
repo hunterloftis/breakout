@@ -9,9 +9,14 @@ export default class Graphics {
   render(state) {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.33)'
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    this.ctx.save()
+    if (state.intensity > 3) {
+      this.ctx.translate(Math.random() * state.intensity, Math.random() * state.intensity)
+    }
     state.bricks.forEach(b => this.renderBrick(b))
     this.renderBall(state.ball)
     this.renderPaddle(state.paddle)
+    this.ctx.restore()
   }
   renderBrick(brick) {
     if (brick.disabled) return
