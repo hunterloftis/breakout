@@ -7,10 +7,24 @@ export default class Graphics {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
   render(state) {
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.33)'
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    state.bricks.forEach(b => this.renderBrick(b))
     this.renderBall(state.ball)
     this.renderPaddle(state.paddle)
+  }
+  renderBrick(brick) {
+    if (brick.disabled) return
+    this.ctx.save()
+    this.ctx.translate(brick.x, brick.y)
+    this.ctx.fillStyle = '#ff0000'
+    this.ctx.lineWidth = 2
+    this.ctx.strokeStyle = '#ffffff'
+    this.ctx.beginPath()
+    this.ctx.rect(0, 0, brick.width, brick.height)
+    this.ctx.fill()
+    this.ctx.stroke()
+    this.ctx.restore()
   }
   renderBall(ball) {
     if (!ball) return

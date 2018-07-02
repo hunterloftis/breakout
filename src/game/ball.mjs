@@ -1,21 +1,25 @@
 const BIAS = 1e-6
+const ACCELERATION = 10
 
 export default class Ball {
-  constructor(minX, maxX, y, v = 500) {
+  constructor(minX, maxX, y, v = 250) {
     this.x = minX + (maxX - minX) * Math.random()
     this.y = y
     this.v = v
     this.bounce = 0
     this.theta = Math.PI * (1.1 + Math.random() * 0.8)
+    this.destroyed = false
   }
-  move(tick, container, paddle) {
+  move(tick, container, paddle, bricks) {
     const secs = tick / 1000
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
-    const v = this.v * secs
+    const v = Math.min(500, (this.v + this.bounce * ACCELERATION) * secs)
+
     const wallHit = this.intersect(container, v, true)
     const paddleHit = this.intersect(paddle, v)
-    const hit = [wallHit, paddleHit].sort(((a, b) => a.dist - b.dist))[0]
+    const brickHits = bricks.map(b => this.intersect(b, v))
+    const hit = [wallHit, paddleHit].concat(brickHits).sort((a, b) => a.dist - b.dist)[0]
 
     this.x += hit.dx
     this.y += hit.dy
@@ -24,6 +28,17 @@ export default class Ball {
     }
     else if (hit.type === Hit.IN_BOTTOM || hit.type === Hit.TOP) {
       this.theta = Math.atan2(-Math.abs(dy), dx)
+      if (hit.target === paddle) {
+        const px = (this.x - paddle.x) / (paddle.width * 0.5)
+        this.theta += Math.PI * 0.25 * px
+        while (this.theta < 0) this.theta += Math.PI * 2
+        while (this.theta > Math.PI * 2) this.theta -= Math.PI * 2
+        this.theta = Math.min(1.9 * Math.PI, this.theta)
+        this.theta = Math.max(1.1 * Math.PI, this.theta)
+      }
+      if (hit.target === container && hit.type === Hit.IN_BOTTOM) {
+        this.destroyed = true
+      }
     }
     else if (hit.type === Hit.IN_LEFT || hit.type === Hit.RIGHT) {
       this.theta = Math.atan2(dy, Math.abs(dx))
@@ -31,15 +46,24 @@ export default class Ball {
     else if (hit.type === Hit.IN_RIGHT || hit.type === Hit.LEFT) {
       this.theta = Math.atan2(dy, -Math.abs(dx))
     }
+    if (hit.target.onHit) hit.target.onHit()
+    if (hit.type !== Hit.NONE && hit.type !== Hit.IN) {
+      this.bounce++
+    }
   }
   // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
-  intersect(box, limit, interior = false) {
+  intersect(target, limit, interior = false) {
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
 
+    const box = target.box()
+    if (!box) {
+      return Hit(Hit.IN, target, dx, dy, limit)
+    }
+
     const inside = this.x > box.left && this.x < box.right && this.y > box.top && this.y < box.bottom
     if (inside && !interior) {
-      return Hit(Hit.IN, dx, dy, limit)
+      return Hit(Hit.IN, target, dx, dy, limit)
     }
 
     let tmin = 0
@@ -51,7 +75,7 @@ export default class Ball {
     tmin = Math.max(tmin, Math.min(tleft, tright))
     tmax = Math.min(tmax, Math.max(tleft, tright))
     if (tmax < tmin) {
-      return Hit(Hit.NONE, dx, dy, limit)
+      return Hit(Hit.NONE, target, dx, dy, limit)
     }
 
     const invY = 1 / dy
@@ -60,34 +84,34 @@ export default class Ball {
     tmin = Math.max(tmin, Math.min(ttop, tbottom))
     tmax = Math.min(tmax, Math.max(ttop, tbottom))
     if (tmax < tmin) {
-      return Hit(Hit.NONE, dx, dy, limit)
+      return Hit(Hit.NONE, target, dx, dy, limit)
     }
 
     let hit
     if (tmin > 0) hit = tmin
     else if (tmax > 0) hit = tmax
     else {
-      return Hit(Hit.NONE, dx, dy, limit)
+      return Hit(Hit.NONE, target, dx, dy, limit)
     }
 
     if (hit === tleft) {
-      return Hit(inside ? Hit.IN_LEFT : Hit.LEFT, dx, dy, hit * BIAS)
+      return Hit(inside ? Hit.IN_LEFT : Hit.LEFT, target, dx, dy, hit * BIAS)
     }
     else if (hit === tright) {
-      return Hit(inside ? Hit.IN_RIGHT : Hit.RIGHT, dx, dy, hit * BIAS)
+      return Hit(inside ? Hit.IN_RIGHT : Hit.RIGHT, target, dx, dy, hit * BIAS)
     }
     else if (hit === ttop) {
-      return Hit(inside ? Hit.IN_TOP : Hit.TOP, dx, dy, hit * BIAS)
+      return Hit(inside ? Hit.IN_TOP : Hit.TOP, target, dx, dy, hit * BIAS)
     }
     else if (hit === tbottom) {
-      return Hit(inside ? Hit.IN_BOTTOM : Hit.BOTTOM, dx, dy, hit * BIAS)
+      return Hit(inside ? Hit.IN_BOTTOM : Hit.BOTTOM, target, dx, dy, hit * BIAS)
     }
-    return Hit(Hit.NONE, dx, dy, limit)
+    return Hit(Hit.NONE, target, dx, dy, limit)
   }
 }
 
-function Hit(type, x, y, dist) {
-  return { type, dx: x * dist, dy: y * dist, dist }
+function Hit(type, target, x, y, dist) {
+  return { type, target, dx: x * dist, dy: y * dist, dist }
 }
 Hit.NONE = 0
 Hit.IN_TOP = 1
