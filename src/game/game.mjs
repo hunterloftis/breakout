@@ -19,10 +19,12 @@ export default class Game {
     if (!this.ball) {
       this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
     }
-    const [intensity, particles] = this.ball.move(tick, this, this.paddle, this.bricks)
-    this.intensity += intensity
+    const ball = this.ball.move(tick, this, this.paddle, this.bricks)
+    if (ball) this.intensity += this.ball.intensity
+    else this.ball = undefined
+
+    const particles = [].concat(...this.bricks.map(b => b.destroyed()).filter(x => x))
     this.particles.push(...particles)
-    if (this.ball.destroyed) this.ball = undefined
   }
   update(delta, time) {
     this.intensity = Math.max(0, this.intensity * 0.95)

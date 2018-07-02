@@ -10,12 +10,10 @@ export default class Brick {
     this.height = h
     this.disabled = Math.random() < 0.2
     this.color = COLORS[Math.floor(Math.random() * COLORS.length)]
+    this.particles = []
   }
   state() {
-    if (this.disabled) {
-      return undefined
-    }
-    return {
+    return this.disabled ? undefined : {
       x: this.x,
       y: this.y,
       width: this.width,
@@ -23,11 +21,13 @@ export default class Brick {
       color: this.color
     }
   }
+  destroyed() {
+    const p = this.particles
+    this.particles = []
+    return p
+  }
   box() {
-    if (this.disabled) {
-      return undefined
-    }
-    return {
+    return this.disabled ? undefined : {
       left: this.x,
       right: this.x + this.width,
       top: this.y,
@@ -35,15 +35,14 @@ export default class Brick {
     }
   }
   onHit(dx, dy) {
+    if (this.disabled) return
     this.disabled = true
-    const particles = []
     for (let y = this.y; y < this.y + this.height; y++) {
       for (let x = this.x; x < this.x + this.width; x++) {
-        if (Math.random() < 0.05) {
-          particles.push(new Particle(x, y, this.color, dx, dy))
+        if (Math.random() < 0.07) {
+          this.particles.push(new Particle(x, y, this.color, dx, dy))
         }
       }
     }
-    return particles
   }
 }

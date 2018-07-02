@@ -8,7 +8,7 @@ export default class Ball {
     this.v = v
     this.bounce = 0
     this.theta = Math.PI * (1.1 + Math.random() * 0.8)
-    this.destroyed = false
+    this.intensity = 0
   }
   state() {
     const v = this.velocity(1)
@@ -16,8 +16,7 @@ export default class Ball {
       x: this.x,
       y: this.y,
       vx: v.vx,
-      vy: v.vy,
-      destroyed: this.destroyed
+      vy: v.vy
     }
   }
   velocity(tick) {
@@ -35,9 +34,8 @@ export default class Ball {
     const hits = [wallHit, paddleHit].concat(brickHits)
     const hit = hits.sort((a, b) => a.dist - b.dist)[0]
 
-    let intensity = 0
-    let particles = []
-
+    let destroyed = false
+    this.intensity = 0
     this.x += hit.dx
     this.y += hit.dy
 
@@ -55,7 +53,7 @@ export default class Ball {
         this.theta = Math.max(1.1 * Math.PI, this.theta)
       }
       if (hit.target === container && hit.type === Hit.IN_BOTTOM) {
-        this.destroyed = true
+        destroyed = true
       }
     }
     else if (hit.type === Hit.IN_LEFT || hit.type === Hit.RIGHT) {
@@ -66,13 +64,13 @@ export default class Ball {
     }
     if (hit.type !== Hit.NONE && hit.type !== Hit.IN) {
       this.bounce++
-      intensity += 1
+      this.intensity += 1
       if (hit.target.onHit) {
-        particles.push(...hit.target.onHit(dx, dy))
-        intensity += 5
+        hit.target.onHit(dx, dy)
+        this.intensity += 5
       }
     }
-    return [intensity, particles]
+    return destroyed
   }
   // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
   intersect(target, limit, interior = false) {

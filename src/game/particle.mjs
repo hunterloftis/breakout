@@ -24,6 +24,6 @@ export default class Particle {
     this.x += vx
     this.y += vy
     this.y += GRAVITY * secs
-    return this.y < 800 && Math.random() > 0.04
+    return this.y < 800 && Math.random() > 0.08
   }
 }
