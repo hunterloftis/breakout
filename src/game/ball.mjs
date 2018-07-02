@@ -10,6 +10,13 @@ export default class Ball {
     this.theta = Math.PI * (1.1 + Math.random() * 0.8)
     this.destroyed = false
   }
+  trail(tick) {
+    const secs = tick / 1000
+    const dx = Math.cos(this.theta)
+    const dy = Math.sin(this.theta)
+    const v = Math.min(500, (this.v + this.bounce * ACCELERATION) * secs)
+    return { x: dx * -v, y: dy * -v }
+  }
   move(tick, container, paddle, bricks) {
     const secs = tick / 1000
     const dx = Math.cos(this.theta)

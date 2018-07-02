@@ -9,7 +9,11 @@ export default class Clock {
   }
   frame() {
     const now = performance.now()
-    const delta = now - this.time
+    let delta = now - this.time
+    if (delta > 100) {
+      this.time = now - 100
+      delta = 100
+    }
     while (this.time + this.tick < now) {
       this.time += this.tick
       this._fixedUpdate(this.tick, this.time - this.start)

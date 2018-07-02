@@ -8,7 +8,7 @@ export default class Game {
     this.height = height
     this.paddle = new Paddle(width * 0.5, this.height - 30)
     this.ball = undefined
-    this.bricks = bricks(0, height * 0.1, width, height * 0.5, 20, 7)
+    this.bricks = bricks(40, height * 0.1, width - 40, height * 0.5, 16, 8)
     this.intensity = 0
   }
   moveTo(x) {
