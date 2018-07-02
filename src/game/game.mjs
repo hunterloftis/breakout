@@ -10,6 +10,7 @@ export default class Game {
     this.ball = undefined
     this.bricks = bricks(40, height * 0.1, width - 40, height * 0.5, 16, 8)
     this.intensity = 0
+    this.particles = []
   }
   moveTo(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
@@ -18,11 +19,14 @@ export default class Game {
     if (!this.ball) {
       this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
     }
-    this.intensity += this.ball.move(tick, this, this.paddle, this.bricks)
+    const [intensity, particles] = this.ball.move(tick, this, this.paddle, this.bricks)
+    this.intensity += intensity
+    this.particles.push(...particles)
     if (this.ball.destroyed) this.ball = undefined
   }
   update(delta, time) {
     this.intensity = Math.max(0, this.intensity * 0.95)
+    this.particles = this.particles.filter(p => p.update(delta))
   }
   box() {
     return { left: 0, right: this.width, top: 0, bottom: this.height }
@@ -32,7 +36,8 @@ export default class Game {
       paddle: this.paddle,
       ball: this.ball,
       bricks: this.bricks,
-      intensity: this.intensity
+      intensity: this.intensity,
+      particles: this.particles,
     }
   }
 }

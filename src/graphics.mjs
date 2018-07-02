@@ -16,6 +16,7 @@ export default class Graphics {
     state.bricks.forEach(b => this.renderBrick(b))
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.paddle)
+    state.particles.forEach(p => this.renderParticle(p))
     this.ctx.restore()
   }
   renderBrick(brick) {
@@ -29,6 +30,10 @@ export default class Graphics {
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
     this.ctx.fillRect(1, 1, brick.width - 2, 2)
     this.ctx.restore()
+  }
+  renderParticle(part) {
+    this.ctx.fillStyle = part.color
+    this.ctx.fillRect(part.x, part.y, 2, 2)
   }
   renderBall(ball, delta) {
     if (!ball) return

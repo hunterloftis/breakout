@@ -29,6 +29,7 @@ export default class Ball {
     const hit = [wallHit, paddleHit].concat(brickHits).sort((a, b) => a.dist - b.dist)[0]
 
     let intensity = 0
+    let particles = []
 
     this.x += hit.dx
     this.y += hit.dy
@@ -59,11 +60,11 @@ export default class Ball {
       this.bounce++
       intensity += 1
       if (hit.target.onHit) {
-        hit.target.onHit()
+        particles.push(...hit.target.onHit(dx, dy))
         intensity += 5
       }
     }
-    return intensity
+    return [intensity, particles]
   }
   // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
   intersect(target, limit, interior = false) {
