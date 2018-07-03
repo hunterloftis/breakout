@@ -1,15 +1,12 @@
 import Particle from './particle.mjs'
 
-const COLORS = ['#D98324', '#A40606', '#5A0002']
-
 export default class Brick {
   constructor(x, y, w, h) {
     this.x = x
     this.y = y
     this.width = w
     this.height = h
-    this.disabled = Math.random() < 0.2
-    this.color = COLORS[Math.floor(Math.random() * COLORS.length)]
+    this.lives = 2 //Math.floor(Math.random() * 4)
     this.particles = []
   }
   state() {
@@ -18,7 +15,7 @@ export default class Brick {
       y: this.y,
       width: this.width,
       height: this.height,
-      color: this.color
+      lives: this.lives,
     }
   }
   destroyed() {
@@ -27,7 +24,7 @@ export default class Brick {
     return p
   }
   box() {
-    return this.disabled ? undefined : {
+    return this.lives < 1 ? undefined : {
       left: this.x,
       right: this.x + this.width,
       top: this.y,
@@ -36,8 +33,9 @@ export default class Brick {
     }
   }
   onHit(dx, dy) {
-    if (this.disabled) return
-    this.disabled = true
+    if (this.lives < 1) return
+    this.lives--
+    if (this.lives > 0) return 1
     for (let y = this.y; y < this.y + this.height; y++) {
       for (let x = this.x; x < this.x + this.width; x++) {
         if (Math.random() < 0.07) {

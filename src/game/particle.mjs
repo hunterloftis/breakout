@@ -5,7 +5,7 @@ export default class Particle {
     this.x = this.x1 = x
     this.y = this.y1 = y
     this.color = color
-    this.x += dx * 1 + Math.random() * 2 - 1
+    this.x += dx * 2 + Math.random() * 2 - 1
     this.y += dy * 3 + Math.random() * 2 - 1
   }
   state() {

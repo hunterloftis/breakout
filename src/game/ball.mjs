@@ -45,8 +45,8 @@ export default class Ball {
       return true
     }
 
-    this.x += dx * hit.dist
-    this.y += dy * hit.dist
+    this.x += dx * (hit.dist - BIAS)
+    this.y += dy * (hit.dist - BIAS)
 
     if (hit.dir === DOWN) {
       this.theta = Math.atan2(Math.abs(dy), dx)

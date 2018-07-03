@@ -15,16 +15,20 @@ export default class Graphics {
     }
     state.bricks.forEach(b => this.renderBrick(b, state.ball))
     this.renderBall(state.ball, delta)
-    this.renderPaddle(state.paddle)
+    this.renderPaddle(state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
     this.ctx.restore()
   }
   renderBrick(brick, ball) {
     if (!brick) return
+    if (brick.lives < 1) return
+    const COLORS = ['#A40606', '#D98324']
+    // const COLORS = ['#5A0002', '#A40606', '#D98324']
+
     this.ctx.save()
     this.ctx.translate(brick.x, brick.y)
     this.ctx.beginPath()
-    this.ctx.fillStyle = brick.color || '#ff0000'
+    this.ctx.fillStyle = COLORS[brick.lives - 1] || '#ff0000'
     this.ctx.fillRect(1, 1, brick.width - 2, brick.height - 2)
     this.ctx.beginPath()
     this.ctx.fillStyle = `rgba(255, 255, 255, 0.2)`
@@ -70,7 +74,7 @@ export default class Graphics {
     this.ctx.restore()
   }
   renderParticle(part) {
-    this.ctx.fillStyle = part.color
+    this.ctx.fillStyle = '#A40606' // part.color
     this.ctx.fillRect(part.x - 1, part.y - 1, 3, 3)
   }
   renderBall(ball, delta) {
@@ -81,13 +85,21 @@ export default class Graphics {
     this.ctx.fillRect(-3, -3, 7, 7)
     this.ctx.restore()
   }
-  renderPaddle(paddle) {
+  renderPaddle(paddle, ball) {
     this.ctx.save()
     this.ctx.translate(paddle.x, paddle.y)
     this.ctx.fillStyle = '#4C5B5C'
     this.ctx.fillRect(-paddle.width * 0.5, -paddle.height * 0.5, paddle.width, paddle.height)
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
     this.ctx.fillRect(-paddle.width * 0.5, -paddle.height * 0.5, paddle.width, 2)
+    if (ball) {
+      const dx = ball.x - (paddle.x + paddle.width * 0.5)
+      const dy = ball.y - paddle.y
+      const d = dx * dx + dy * dy
+      const o = 0.5 * Math.max(0, Math.min(1, 5000 / d))
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
+      this.ctx.fillRect(-paddle.width * 0.5, -paddle.height * 0.5, paddle.width, 2)
+    }
     this.ctx.restore()
   }
 }
