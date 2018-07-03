@@ -13,13 +13,13 @@ export default class Graphics {
     if (state.intensity > 3) {
       this.ctx.translate(Math.random() * state.intensity, Math.random() * state.intensity)
     }
-    state.bricks.forEach(b => this.renderBrick(b))
+    state.bricks.forEach(b => this.renderBrick(b, state.ball))
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.paddle)
     state.particles.forEach(p => this.renderParticle(p))
     this.ctx.restore()
   }
-  renderBrick(brick) {
+  renderBrick(brick, ball) {
     if (!brick) return
     this.ctx.save()
     this.ctx.translate(brick.x, brick.y)
@@ -27,13 +27,51 @@ export default class Graphics {
     this.ctx.fillStyle = brick.color || '#ff0000'
     this.ctx.fillRect(1, 1, brick.width - 2, brick.height - 2)
     this.ctx.beginPath()
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
-    this.ctx.fillRect(1, 1, brick.width - 2, 2)
+    this.ctx.fillStyle = `rgba(255, 255, 255, 0.2)`
+    this.ctx.fillRect(3, 1, brick.width - 6, 2)
+
+    if (ball) {
+      this.ctx.beginPath()
+      if (ball.x < brick.x + brick.width) {
+        const dx = ball.x - brick.x
+        const dy = ball.y - (brick.y + brick.height * 0.5)
+        const d = dx * dx + dy * dy
+        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
+        this.ctx.fillRect(1, 3, 2, brick.height - 6)
+      }
+      if (ball.x > brick.x) {
+        const dx = ball.x - brick.x + brick.width
+        const dy = ball.y - (brick.y + brick.height * 0.5)
+        const d = dx * dx + dy * dy
+        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
+        this.ctx.fillRect(brick.width - 4, 3, 2, brick.height - 6)
+      }
+      this.ctx.beginPath()
+      if (ball.y < brick.y + brick.height) {
+        const dx = ball.x - (brick.x + brick.width * 0.5)
+        const dy = ball.y - brick.y
+        const d = dx * dx + dy * dy
+        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
+        this.ctx.fillRect(3, 1, brick.width - 6, 2)
+      }
+      if (ball.y > brick.y) {
+        const dx = ball.x - (brick.x + brick.width * 0.5)
+        const dy = ball.y - brick.y + brick.height
+        const d = dx * dx + dy * dy
+        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
+        this.ctx.fillRect(3, brick.height - 4, brick.width - 6, 2)
+      }
+      this.ctx.fill()
+    }
     this.ctx.restore()
   }
   renderParticle(part) {
     this.ctx.fillStyle = part.color
-    this.ctx.fillRect(part.x, part.y, 2, 2)
+    this.ctx.fillRect(part.x - 1, part.y - 1, 3, 3)
   }
   renderBall(ball, delta) {
     if (!ball) return
