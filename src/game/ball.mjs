@@ -42,7 +42,7 @@ export default class Ball {
     if (!hit) {
       this.x += dx * v
       this.y += dy * v
-      return true
+      return [true, false]
     }
 
     this.x += dx * (hit.dist - BIAS)
@@ -73,9 +73,9 @@ export default class Ball {
     }
 
     if (hit.target === container && hit.dir === UP) {
-      return false
+      return [false, false]
     }
-    return true
+    return [true, true]
   }
   nearest(targets, limit) {
     return targets.reduce((prev, target) => {
