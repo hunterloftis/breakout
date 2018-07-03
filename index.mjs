@@ -9,6 +9,18 @@ const mouse = new Mouse(canvas)
 const graphics = new Graphics(canvas)
 const game = new Game(canvas.width, canvas.height)
 
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement === canvas) {
+    clock.start()
+  } else {
+    clock.stop()
+  }
+})
+
+canvas.addEventListener('click', () => {
+  canvas.requestPointerLock()
+})
+
 clock.fixedUpdate((tick, time) => {
   game.movePaddle(mouse.x)
   game.fixedUpdate(tick, time)
