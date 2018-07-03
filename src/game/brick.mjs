@@ -6,7 +6,7 @@ export default class Brick {
     this.y = y
     this.width = w
     this.height = h
-    this.lives = 2 //Math.floor(Math.random() * 4)
+    this.lives = 2
     this.particles = []
   }
   state() {
@@ -18,7 +18,10 @@ export default class Brick {
       lives: this.lives,
     }
   }
-  destroyed() {
+  alive() {
+    return this.lives > 0
+  }
+  destroy() {
     const p = this.particles
     this.particles = []
     return p
@@ -39,7 +42,7 @@ export default class Brick {
     for (let y = this.y; y < this.y + this.height; y++) {
       for (let x = this.x; x < this.x + this.width; x++) {
         if (Math.random() < 0.07) {
-          this.particles.push(new Particle(x, y, this.color, dx, dy))
+          this.particles.push(new Particle(x, y, dx, dy))
         }
       }
     }

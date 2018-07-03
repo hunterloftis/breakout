@@ -26,8 +26,9 @@ export default class Game {
     if (ball) this.intensity += this.ball.intensity
     else this.ball = undefined
 
-    const particles = [].concat(...this.bricks.map(b => b.destroyed()).filter(x => x))
+    const particles = [].concat(...this.bricks.map(b => b.destroy()))
     this.particles.push(...particles)
+    this.bricks = this.bricks.filter(b => b.alive())
   }
   update(delta, time) {
     this.intensity = Math.max(0, this.intensity * 0.95)

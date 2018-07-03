@@ -1,10 +1,9 @@
 const GRAVITY = 10
 
 export default class Particle {
-  constructor(x, y, color, dx, dy) {
+  constructor(x, y, dx, dy) {
     this.x = this.x1 = x
     this.y = this.y1 = y
-    this.color = color
     this.x += dx * 2 + Math.random() * 2 - 1
     this.y += dy * 3 + Math.random() * 2 - 1
   }
@@ -12,7 +11,6 @@ export default class Particle {
     return {
       x: this.x,
       y: this.y,
-      color: this.color
     }
   }
   update(delta) {

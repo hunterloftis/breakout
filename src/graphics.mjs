@@ -1,3 +1,5 @@
+const BRICK_COLORS = ['#A40606', '#D98324']
+
 export default class Graphics {
   constructor(canvas) {
     this.canvas = canvas
@@ -34,13 +36,11 @@ export default class Graphics {
   renderBrick(brick, ball) {
     if (!brick) return
     if (brick.lives < 1) return
-    const COLORS = ['#A40606', '#D98324']
-    // const COLORS = ['#5A0002', '#A40606', '#D98324']
 
     this.ctx.save()
     this.ctx.translate(brick.x, brick.y)
     this.ctx.beginPath()
-    this.ctx.fillStyle = COLORS[brick.lives - 1] || '#ff0000'
+    this.ctx.fillStyle = BRICK_COLORS[brick.lives - 1] || '#ff0000'
     this.ctx.fillRect(1, 1, brick.width - 2, brick.height - 2)
     this.ctx.beginPath()
     this.ctx.fillStyle = `rgba(255, 255, 255, 0.2)`
@@ -86,7 +86,7 @@ export default class Graphics {
     this.ctx.restore()
   }
   renderParticle(part) {
-    this.ctx.fillStyle = '#A40606' // part.color
+    this.ctx.fillStyle = BRICK_COLORS[0] || '#A40606'
     this.ctx.fillRect(part.x - 1, part.y - 1, 3, 3)
   }
   renderBall(ball, delta) {
