@@ -74,7 +74,7 @@ export default class Game {
     this.bricks = this.bricks.filter(b => b.alive())
     if (particles.length) {
       this.events.smash = true
-      this.score += 100
+      this.score += 70 + this.lives * 10
     }
   }
   update(delta, time) {
