@@ -1,6 +1,12 @@
 const BIAS = 1e-6
 const ACCELERATION = 5
 
+const NONE = 0
+const TOP = 1
+const BOTTOM = 2
+const LEFT = 3
+const RIGHT = 4
+
 export default class Ball {
   constructor(minX, maxX, y, v = 300) {
     this.x = minX + (maxX - minX) * Math.random()
@@ -11,12 +17,12 @@ export default class Ball {
     this.intensity = 0
   }
   state() {
-    const v = this.velocity(1)
+    const { v, dx, dy } = this.velocity(1)
     return {
       x: this.x,
       y: this.y,
-      vx: v.vx,
-      vy: v.vy
+      vx: dx * v,
+      vy: dy * v
     }
   }
   velocity(tick) {
@@ -24,68 +30,72 @@ export default class Ball {
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
     const v = Math.min(500, (this.v + this.bounce * ACCELERATION) * secs)
-    return { v, dx, dy, vx: dx * v, vy: dy * v }
+    return { v, dx, dy }
   }
   move(tick, container, paddle, bricks) {
     const { v, dx, dy } = this.velocity(tick)
-    const wallHit = this.intersect(container, v, true)
-    const paddleHit = this.intersect(paddle, v)
-    const brickHits = bricks.map(b => this.intersect(b, v))
-    const hits = [wallHit, paddleHit].concat(brickHits)
-    const hit = hits.sort((a, b) => a.dist - b.dist)[0]
+    const colliders = [container, paddle].concat(bricks)
+    const hit = this.nearest(colliders, v)
 
-    let destroyed = false
+    if (!hit) {
+      this.x += dx * (v - BIAS)
+      this.y += dy * (v - BIAS)
+      return true
+    }
+
     this.intensity = 0
-    this.x += hit.dx
-    this.y += hit.dy
+    this.x += dx * hit.dist
+    this.y += dy * hit.dist
 
-    if (hit.type === Hit.IN_TOP || hit.type === Hit.BOTTOM) {
+    if (hit.edge === BOTTOM || hit.edge === TOP && hit.inside) {
       this.theta = Math.atan2(Math.abs(dy), dx)
     }
-    else if (hit.type === Hit.IN_BOTTOM || hit.type === Hit.TOP) {
-      this.theta = Math.atan2(-Math.abs(dy), dx)
+    if (hit.edge === TOP || hit.edge === BOTTOM && hit.inside) {
       if (hit.target === paddle) {
         const px = (this.x - paddle.x) / (paddle.width * 0.5)
-        this.theta += Math.PI * 0.33 * px
-        while (this.theta < 0) this.theta += Math.PI * 2
-        while (this.theta > Math.PI * 2) this.theta -= Math.PI * 2
-        this.theta = Math.min(1.9 * Math.PI, this.theta)
-        this.theta = Math.max(1.1 * Math.PI, this.theta)
-      }
-      if (hit.target === container && hit.type === Hit.IN_BOTTOM) {
-        destroyed = true
+        this.theta = Math.PI * 0.5 + Math.PI * 0.9 * px
+      } else {
+        this.theta = Math.atan2(-Math.abs(dy), dx)
       }
     }
-    else if (hit.type === Hit.IN_LEFT || hit.type === Hit.RIGHT) {
+    else if (hit.edge === RIGHT || hit.edge === LEFT && hit.inside) {
       this.theta = Math.atan2(dy, Math.abs(dx))
     }
-    else if (hit.type === Hit.IN_RIGHT || hit.type === Hit.LEFT) {
+    else if (hit.edge === LEFT || hit.edge === RIGHT && hit.inside) {
       this.theta = Math.atan2(dy, -Math.abs(dx))
     }
-    if (hit.type !== Hit.NONE && hit.type !== Hit.IN) {
-      this.bounce++
-      this.intensity += 1
-      if (hit.target.onHit) {
-        hit.target.onHit(dx, dy)
-        this.intensity += 5
-      }
+
+    this.bounce++
+    this.intensity++
+    if (hit.target.onHit) {
+      this.intensity += hit.target.onHit(dx, dy)
     }
-    return destroyed
+    this.intensity = 0
+
+    if (hit.target === container && hit.bottom) {
+      return false
+    }
+    return true
+  }
+  nearest(targets, limit) {
+    return targets.reduce((hit, target) => {
+      const box = target.box()
+      if (!box) return hit
+
+      const inside = this.x > box.left && this.x < box.right && this.y > box.top && this.y < box.bottom
+      if (inside && box.solid) return hit
+
+      const l = hit ? hit.dist : limit
+      const [edge, dist] = this.intersect(box, l)
+      if (edge === NONE) return hit
+
+      return { target, dist, edge, inside }
+    }, undefined)
   }
   // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
-  intersect(target, limit, interior = false) {
+  intersect(box, limit) {
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
-
-    const box = target.box()
-    if (!box) {
-      return Hit(Hit.IN, target, dx, dy, limit)
-    }
-
-    const inside = this.x > box.left && this.x < box.right && this.y > box.top && this.y < box.bottom
-    if (inside && !interior) {
-      return Hit(Hit.IN, target, dx, dy, limit)
-    }
 
     let tmin = 0
     let tmax = limit
@@ -96,7 +106,7 @@ export default class Ball {
     tmin = Math.max(tmin, Math.min(tleft, tright))
     tmax = Math.min(tmax, Math.max(tleft, tright))
     if (tmax < tmin) {
-      return Hit(Hit.NONE, target, dx, dy, limit)
+      return [NONE, Infinity]
     }
 
     const invY = 1 / dy
@@ -105,42 +115,18 @@ export default class Ball {
     tmin = Math.max(tmin, Math.min(ttop, tbottom))
     tmax = Math.min(tmax, Math.max(ttop, tbottom))
     if (tmax < tmin) {
-      return Hit(Hit.NONE, target, dx, dy, limit)
+      return [NONE, Infinity]
     }
 
     let hit
     if (tmin > 0) hit = tmin
     else if (tmax > 0) hit = tmax
-    else {
-      return Hit(Hit.NONE, target, dx, dy, limit)
-    }
+    else return [NONE, Infinity]
 
-    if (hit === tleft) {
-      return Hit(inside ? Hit.IN_LEFT : Hit.LEFT, target, dx, dy, hit * BIAS)
-    }
-    else if (hit === tright) {
-      return Hit(inside ? Hit.IN_RIGHT : Hit.RIGHT, target, dx, dy, hit * BIAS)
-    }
-    else if (hit === ttop) {
-      return Hit(inside ? Hit.IN_TOP : Hit.TOP, target, dx, dy, hit * BIAS)
-    }
-    else if (hit === tbottom) {
-      return Hit(inside ? Hit.IN_BOTTOM : Hit.BOTTOM, target, dx, dy, hit * BIAS)
-    }
-    return Hit(Hit.NONE, target, dx, dy, limit)
+    if (hit === tleft) return [LEFT, hit]
+    if (hit === tright) return [RIGHT, hit]
+    if (hit === ttop) return [TOP, hit]
+    if (hit === tbottom) return [BOTTOM, hit]
+    return [NONE, Infinity]
   }
 }
-
-function Hit(type, target, x, y, dist) {
-  return { type, target, dx: x * dist, dy: y * dist, dist }
-}
-Hit.NONE = 0
-Hit.IN_TOP = 1
-Hit.IN_BOTTOM = 2
-Hit.IN_LEFT = 3
-Hit.IN_RIGHT = 4
-Hit.TOP = 5
-Hit.BOTTOM = 6
-Hit.LEFT = 7
-Hit.RIGHT = 8
-Hit.IN = 9

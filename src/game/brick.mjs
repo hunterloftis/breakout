@@ -31,7 +31,8 @@ export default class Brick {
       left: this.x,
       right: this.x + this.width,
       top: this.y,
-      bottom: this.y + this.height
+      bottom: this.y + this.height,
+      solid: true
     }
   }
   onHit(dx, dy) {
@@ -44,5 +45,6 @@ export default class Brick {
         }
       }
     }
+    return 5
   }
 }

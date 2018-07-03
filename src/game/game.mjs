@@ -31,7 +31,13 @@ export default class Game {
     this.particles = this.particles.filter(p => p.update(delta))
   }
   box() {
-    return { left: 0, right: this.width, top: 0, bottom: this.height }
+    return {
+      left: 0,
+      right: this.width,
+      top: 0,
+      bottom: this.height,
+      solid: false
+    }
   }
   state() {
     return {

@@ -23,7 +23,8 @@ export default class Paddle {
       left: this.x - this.width * 0.5,
       right: this.x + this.width * 0.5,
       top: this.y - this.height * 0.5,
-      bottom: this.y + this.height * 0.5
+      bottom: this.y + this.height * 0.5,
+      solid: true
     }
   }
 }
