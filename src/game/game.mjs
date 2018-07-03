@@ -19,6 +19,7 @@ export default class Game {
     this.particles = []
     this.events = { ...EVENTS }
     this.lives = 3
+    this.score = 0
   }
   movePaddle(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
@@ -35,32 +36,45 @@ export default class Game {
   }
   fixedUpdate(tick, time) {
     if (this.lives === 0) {
-      if (this.bricks.length && Math.random() < 0.5) {
-        this.bricks[0].onHit(0, 0, 10)
-      }
+      return this.fixedUpdateDead(tick, time)
     }
-    else if (this.bricks.length === 0) {
-      this.ball = undefined
+    if (this.bricks.length === 0) {
+      return this.fixedUpdateWon(tick, time)
     }
-    else {
-      if (!this.ball) {
-        this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
-      }
-      const [ball, bounce] = this.ball.move(tick, this, this.paddle, this.bricks)
-      if (ball) {
-        this.intensity += this.ball.intensity
-      }
-      else {
-        this.die()
-      }
-      this.events.bounce = bounce
+    this.fixedUpdatePlay(tick, time)
+  }
+  fixedUpdateDead(tick, time) {
+    if (this.bricks.length && Math.random() < 0.5) {
+      this.bricks[0].onHit(0, 0, 10)
     }
-
     const particles = [].concat(...this.bricks.map(b => b.destroy()))
     this.particles.push(...particles)
     this.bricks = this.bricks.filter(b => b.alive())
     if (particles.length) {
       this.events.smash = true
+    }
+  }
+  fixedUpdateWon(tick, time) {
+    this.ball = undefined
+  }
+  fixedUpdatePlay(tick, time) {
+    if (!this.ball) {
+      this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
+    }
+    const [ball, bounce] = this.ball.move(tick, this, this.paddle, this.bricks)
+    if (ball) {
+      this.intensity += this.ball.intensity
+    }
+    else {
+      this.die()
+    }
+    this.events.bounce = bounce
+    const particles = [].concat(...this.bricks.map(b => b.destroy()))
+    this.particles.push(...particles)
+    this.bricks = this.bricks.filter(b => b.alive())
+    if (particles.length) {
+      this.events.smash = true
+      this.score += 100
     }
   }
   update(delta, time) {
@@ -89,6 +103,7 @@ export default class Game {
       intensity: this.intensity,
       particles: this.particles.map(p => p.state()),
       lives: this.lives,
+      score: this.score,
     }
   }
 }

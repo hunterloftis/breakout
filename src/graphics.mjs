@@ -21,16 +21,18 @@ export default class Graphics {
     state.particles.forEach(p => this.renderParticle(p))
     this.ctx.restore()
 
-    this.renderStats(state.lives, state.bricks.length)
+    this.renderStats(state.lives, state.bricks.length, state.score)
     this.renderPause(paused)
   }
-  renderStats(lives, bricks) {
+  renderStats(lives, bricks, score) {
     this.ctx.save()
     this.ctx.fillStyle = '#ffffff'
     this.ctx.font = '14pt sans-serif'
     this.ctx.textBaseline = 'top'
     const s = Array(lives).fill('❤️').join(' ')
     this.ctx.fillText(s, 10, 10)
+    this.ctx.textAlign = 'right'
+    this.ctx.fillText(score, this.canvas.width - 15, 10)
     if (bricks === 0) {
       this.ctx.font = '72pt sans-serif'
       this.ctx.textAlign = 'center'
