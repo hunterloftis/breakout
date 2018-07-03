@@ -57,7 +57,7 @@ function bricks(left, top, right, bottom, cols, rows) {
   const dx = width / cols
   const dy = height / rows
   for (let y = 0; y < rows; y += 2) {
-    for (let x = 0; x < cols; x++) {
+    for (let x = (y / 2 % 2); x < (cols - y / 2 % 2); x++) {
       b.push(new Brick(left + x * dx, top + y * dy, dx, dy))
     }
   }

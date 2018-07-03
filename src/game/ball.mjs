@@ -1,5 +1,5 @@
 const BIAS = 1e-6
-const ACCELERATION = 5
+const ACCELERATION = 2
 
 const NONE = 0
 const UP = 1
