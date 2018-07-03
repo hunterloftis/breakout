@@ -28,7 +28,7 @@ export default class Graphics {
     this.ctx.fillStyle = '#ffffff'
     this.ctx.textAlign = 'center'
     this.ctx.textBaseline = 'middle'
-    this.ctx.fillText('Click', this.canvas.width * 0.5, this.canvas.height * 0.5)
+    this.ctx.fillText('🖱', this.canvas.width * 0.5, this.canvas.height * 0.5)
     this.ctx.restore()
   }
   renderBrick(brick, ball) {
