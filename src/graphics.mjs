@@ -5,7 +5,7 @@ export default class Graphics {
     this.ctx = canvas.getContext('2d')
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
-  render(state, delta) {
+  render(state, delta, paused = false) {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.33)'
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
     this.ctx.save()
@@ -16,6 +16,19 @@ export default class Graphics {
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
+    this.ctx.restore()
+    this.renderPause(paused)
+  }
+  renderPause(paused) {
+    if (!paused) return
+    this.ctx.save()
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+    this.ctx.font = '72pt sans-serif'
+    this.ctx.fillStyle = '#ffffff'
+    this.ctx.textAlign = 'center'
+    this.ctx.textBaseline = 'middle'
+    this.ctx.fillText('Click', this.canvas.width * 0.5, this.canvas.height * 0.5)
     this.ctx.restore()
   }
   renderBrick(brick, ball) {

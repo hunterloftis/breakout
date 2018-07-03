@@ -1,10 +1,11 @@
 export default class Mouse {
-  constructor(canvas) {
+  constructor(canvas, margin = 0) {
     this.x = canvas.width * 0.5
     this.y = canvas.height * 0.5
+
     document.addEventListener('mousemove', e => {
-      this.x = Math.max(0, Math.min(canvas.width, this.x + e.movementX))
-      this.y = Math.max(0, Math.min(canvas.height, this.y + e.movementY))
+      this.x = Math.max(margin, Math.min(canvas.width - margin, this.x + e.movementX))
+      this.y = Math.max(margin, Math.min(canvas.height - margin, this.y + e.movementY))
     })
   }
 }

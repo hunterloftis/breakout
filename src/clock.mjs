@@ -1,3 +1,5 @@
+const MAX_DELTA = 64
+
 export default class Clock {
   constructor(tick = 16) {
     this.tick = tick
@@ -17,9 +19,9 @@ export default class Clock {
 
     const now = performance.now()
     let delta = now - this.time
-    if (delta > 100) {
-      this.time = now - 100
-      delta = 100
+    if (delta > MAX_DELTA) {
+      this.time = now - MAX_DELTA
+      delta = MAX_DELTA
     }
     while (this.time + this.tick < now) {
       this.time += this.tick

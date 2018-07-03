@@ -15,6 +15,9 @@ export default class Game {
   movePaddle(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
   }
+  paddleWidth() {
+    return this.paddle.width
+  }
   fixedUpdate(tick, time) {
     if (!this.ball) {
       this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
