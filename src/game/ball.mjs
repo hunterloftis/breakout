@@ -9,11 +9,11 @@ const RIGHT = 4
 
 export default class Ball {
   constructor(minX, maxX, y, v = 300) {
-    this.x = minX + (maxX - minX) * Math.random()
+    this.x = minX + (maxX - minX) * (Math.random() * 0.5 + 0.25)
     this.y = y
     this.v = v
     this.bounce = 0
-    this.theta = Math.PI * (1.1 + Math.random() * 0.8)
+    this.theta = Math.PI * (1.2 + Math.random() * 0.6)
     this.intensity = 0
   }
   state() {

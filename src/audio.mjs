@@ -3,7 +3,7 @@ export default class Audio {
     document.addEventListener('click', () => {
       this.ctx = new window.AudioContext()
       this.gain = this.ctx.createGain()
-      this.gain.gain.value = 0.3
+      this.gain.gain.value = 0.1
       this.gain.connect(this.ctx.destination)
     })
   }

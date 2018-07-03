@@ -4,7 +4,8 @@ import Brick from './brick.mjs'
 
 const EVENTS = {
   bounce: false,
-  smash: false
+  smash: false,
+  death: false
 }
 
 export default class Game {
@@ -16,7 +17,8 @@ export default class Game {
     this.bricks = bricks(40, height * 0.1, width - 40, height * 0.5, 16, 8)
     this.intensity = 0
     this.particles = []
-    this._events = { ...EVENTS }
+    this.events = { ...EVENTS }
+    this.lives = 3
   }
   movePaddle(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
@@ -24,27 +26,50 @@ export default class Game {
   paddleWidth() {
     return this.paddle.width
   }
-  fixedUpdate(tick, time) {
-    if (!this.ball) {
-      this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
+  die() {
+    this.ball = undefined
+    this.lives--
+    if (this.lives < 1) {
+      this.events.death = true
     }
-    const [ball, bounce] = this.ball.move(tick, this, this.paddle, this.bricks)
-    if (ball) this.intensity += this.ball.intensity
-    else this.ball = undefined
-    this._events.bounce = bounce
+  }
+  fixedUpdate(tick, time) {
+    if (this.lives === 0) {
+      if (this.bricks.length && Math.random() < 0.5) {
+        this.bricks[0].onHit(0, 0, 10)
+      }
+    }
+    else if (this.bricks.length === 0) {
+      this.ball = undefined
+    }
+    else {
+      if (!this.ball) {
+        this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
+      }
+      const [ball, bounce] = this.ball.move(tick, this, this.paddle, this.bricks)
+      if (ball) {
+        this.intensity += this.ball.intensity
+      }
+      else {
+        this.die()
+      }
+      this.events.bounce = bounce
+    }
 
     const particles = [].concat(...this.bricks.map(b => b.destroy()))
     this.particles.push(...particles)
     this.bricks = this.bricks.filter(b => b.alive())
-    if (particles.length) this._events.smash = true
+    if (particles.length) {
+      this.events.smash = true
+    }
   }
   update(delta, time) {
     this.intensity = Math.max(0, this.intensity * 0.95)
     this.particles = this.particles.filter(p => p.update(delta))
   }
-  events() {
-    const e = this._events
-    this._events = { ...EVENTS }
+  flushEvents() {
+    const e = this.events
+    this.events = { ...EVENTS }
     return e
   }
   box() {
@@ -63,6 +88,7 @@ export default class Game {
       bricks: this.bricks.map(b => b.state()),
       intensity: this.intensity,
       particles: this.particles.map(p => p.state()),
+      lives: this.lives,
     }
   }
 }

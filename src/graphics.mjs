@@ -10,16 +10,38 @@ export default class Graphics {
   render(state, delta, paused = false) {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.33)'
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+
     this.ctx.save()
     if (state.intensity > 3) {
       this.ctx.translate(Math.random() * state.intensity, Math.random() * state.intensity)
     }
     state.bricks.forEach(b => this.renderBrick(b, state.ball))
     this.renderBall(state.ball, delta)
-    this.renderPaddle(state.paddle, state.ball)
+    this.renderPaddle(state.lives, state.bricks.length, state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
     this.ctx.restore()
+
+    this.renderStats(state.lives, state.bricks.length)
     this.renderPause(paused)
+  }
+  renderStats(lives, bricks) {
+    this.ctx.save()
+    this.ctx.fillStyle = '#ffffff'
+    this.ctx.font = '14pt sans-serif'
+    this.ctx.textBaseline = 'top'
+    const s = Array(lives).fill('❤️').join(' ')
+    this.ctx.fillText(s, 10, 10)
+    if (bricks === 0) {
+      this.ctx.font = '72pt sans-serif'
+      this.ctx.textAlign = 'center'
+      this.ctx.textBaseline = 'middle'
+      if (lives > 0) {
+        this.ctx.fillText('🏆🏆🏆', this.canvas.width * 0.5, this.canvas.height * 0.5)
+      } else {
+        this.ctx.fillText('Game Over', this.canvas.width * 0.5, this.canvas.height * 0.5)
+      }
+    }
+    this.ctx.restore()
   }
   renderPause(paused) {
     if (!paused) return
@@ -97,7 +119,8 @@ export default class Graphics {
     this.ctx.fillRect(-3, -3, 7, 7)
     this.ctx.restore()
   }
-  renderPaddle(paddle, ball) {
+  renderPaddle(lives, bricks, paddle, ball) {
+    if (lives === 0 || bricks === 0) return
     this.ctx.save()
     this.ctx.translate(paddle.x, paddle.y)
     this.ctx.fillStyle = '#4C5B5C'

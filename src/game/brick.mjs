@@ -35,9 +35,9 @@ export default class Brick {
       solid: true
     }
   }
-  onHit(dx, dy) {
+  onHit(dx, dy, power = 1) {
     if (this.lives < 1) return
-    this.lives--
+    this.lives -= power
     if (this.lives > 0) return 1
     for (let y = this.y; y < this.y + this.height; y++) {
       for (let x = this.x; x < this.x + this.width; x++) {
