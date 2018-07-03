@@ -32,8 +32,10 @@ export default class Clock {
   }
   fixedUpdate(fn) {
     this._fixedUpdate = fn
+    return this
   }
   update(fn) {
     this._update = fn
+    return this
   }
 }

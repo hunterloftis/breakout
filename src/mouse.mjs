@@ -18,8 +18,10 @@ export default class Mouse {
   }
   lock(fn) {
     this._lock = fn
+    return this
   }
   unlock(fn) {
     this._unlock = fn
+    return this
   }
 }
