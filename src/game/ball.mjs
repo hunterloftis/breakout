@@ -2,8 +2,8 @@ const BIAS = 1e-6
 const ACCELERATION = 5
 
 const NONE = 0
-const TOP = 1
-const BOTTOM = 2
+const UP = 1
+const DOWN = 2
 const LEFT = 3
 const RIGHT = 4
 
@@ -37,31 +37,32 @@ export default class Ball {
     const colliders = [container, paddle].concat(bricks)
     const hit = this.nearest(colliders, v)
 
+    this.intensity = 0
+
     if (!hit) {
-      this.x += dx * (v - BIAS)
-      this.y += dy * (v - BIAS)
+      this.x += dx * v
+      this.y += dy * v
       return true
     }
 
-    this.intensity = 0
     this.x += dx * hit.dist
     this.y += dy * hit.dist
 
-    if (hit.edge === BOTTOM || hit.edge === TOP && hit.inside) {
+    if (hit.dir === DOWN) {
       this.theta = Math.atan2(Math.abs(dy), dx)
     }
-    if (hit.edge === TOP || hit.edge === BOTTOM && hit.inside) {
+    else if (hit.dir === UP) {
       if (hit.target === paddle) {
         const px = (this.x - paddle.x) / (paddle.width * 0.5)
-        this.theta = Math.PI * 0.5 + Math.PI * 0.9 * px
+        this.theta = Math.PI * -0.5 + Math.PI * 0.3 * px
       } else {
         this.theta = Math.atan2(-Math.abs(dy), dx)
       }
     }
-    else if (hit.edge === RIGHT || hit.edge === LEFT && hit.inside) {
+    else if (hit.dir === RIGHT) {
       this.theta = Math.atan2(dy, Math.abs(dx))
     }
-    else if (hit.edge === LEFT || hit.edge === RIGHT && hit.inside) {
+    else if (hit.dir === LEFT) {
       this.theta = Math.atan2(dy, -Math.abs(dx))
     }
 
@@ -70,30 +71,31 @@ export default class Ball {
     if (hit.target.onHit) {
       this.intensity += hit.target.onHit(dx, dy)
     }
-    this.intensity = 0
 
-    if (hit.target === container && hit.bottom) {
+    if (hit.target === container && hit.dir === UP) {
       return false
     }
     return true
   }
   nearest(targets, limit) {
-    return targets.reduce((hit, target) => {
+    return targets.reduce((prev, target) => {
       const box = target.box()
-      if (!box) return hit
+      if (!box) return prev
 
-      const inside = this.x > box.left && this.x < box.right && this.y > box.top && this.y < box.bottom
-      if (inside && box.solid) return hit
+      const l = prev ? prev.dist : limit
+      const [dir, dist] = this.intersect(box, l)
+      if (dir === NONE) return prev
 
-      const l = hit ? hit.dist : limit
-      const [edge, dist] = this.intersect(box, l)
-      if (edge === NONE) return hit
-
-      return { target, dist, edge, inside }
+      return { target, dist, dir }
     }, undefined)
   }
   // https://github.com/hunterloftis/pbr2/blob/master/pkg/surface/cube.go#L31
   intersect(box, limit) {
+    const inside = this.x >= box.left && this.x <= box.right && this.y >= box.top && this.y <= box.bottom
+    if (inside === box.solid) {
+      return [NONE, Infinity]
+    }
+
     const dx = Math.cos(this.theta)
     const dy = Math.sin(this.theta)
 
@@ -123,10 +125,10 @@ export default class Ball {
     else if (tmax > 0) hit = tmax
     else return [NONE, Infinity]
 
-    if (hit === tleft) return [LEFT, hit]
-    if (hit === tright) return [RIGHT, hit]
-    if (hit === ttop) return [TOP, hit]
-    if (hit === tbottom) return [BOTTOM, hit]
+    if (hit === tleft) return inside ? [RIGHT, hit] : [LEFT, hit]
+    if (hit === tright) return inside ? [LEFT, hit] : [RIGHT, hit]
+    if (hit === ttop) return inside ? [DOWN, hit] : [UP, hit]
+    if (hit === tbottom) return inside ? [UP, hit] : [DOWN, hit]
     return [NONE, Infinity]
   }
 }
