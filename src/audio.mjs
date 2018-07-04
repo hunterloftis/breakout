@@ -10,7 +10,7 @@ export default class Audio {
   play(events, delta, time) {
     if (!this.ctx) return
     if (events.smash) this.smash()
-    if (events.bounce) this.bounce()
+    else if (events.bounce) this.bounce()
   }
   bounce() {
     const b = this.ctx.createOscillator()
@@ -23,9 +23,9 @@ export default class Audio {
   smash() {
     const s = this.ctx.createOscillator()
     s.type = 'sawtooth'
-    s.frequency.value = 4194
+    s.frequency.value = 65
     s.connect(this.gain)
     s.start(this.ctx.currentTime)
-    s.stop(this.ctx.currentTime + 0.05)
+    s.stop(this.ctx.currentTime + 0.1)
   }
 }
