@@ -2,6 +2,8 @@ import Paddle from './paddle.mjs'
 import Ball from './ball.mjs'
 import Brick from './brick.mjs'
 
+const BALL_DELAY = 1000
+
 const EVENTS = {
   bounce: false,
   smash: false,
@@ -32,13 +34,6 @@ export default class Game {
   }
   paddleWidth() {
     return this.paddle.width
-  }
-  die() {
-    this.ball = undefined
-    this.lives--
-    if (this.lives < 1) {
-      this.events.death = true
-    }
   }
   fixedUpdate(tick, time) {
     this.mode = this.mode.fixedUpdate(this, tick, time) || this.mode
@@ -75,24 +70,32 @@ export default class Game {
 }
 
 class GamePlay {
+  constructor() {
+    this.nextBall = 0
+  }
   fixedUpdate(game, tick, time) {
     if (game.lives === 0) {
+      game.events.death = true
       return game.modes.lose
     }
     if (game.bricks.length === 0) {
       return game.modes.win
     }
-    if (!game.ball) {
+    if (!game.ball && time > this.nextBall) {
       game.ball = new Ball(game.width * 0.1, game.width * 0.9, game.paddle.y - game.paddle.height * 3)
     }
-    const [ball, bounce] = game.ball.move(tick, game, game.paddle, game.bricks)
-    if (ball) {
-      game.intensity += game.ball.intensity
+
+    if (game.ball) {
+      const [inPlay, bounce, intensity] = game.ball.move(tick, game, game.paddle, game.bricks)
+      if (!inPlay) {
+        game.ball = undefined
+        game.lives--
+        this.nextBall = time + BALL_DELAY
+      }
+      game.intensity += intensity
+      game.events.bounce = bounce
     }
-    else {
-      game.die()
-    }
-    game.events.bounce = bounce
+
     const particles = [].concat(...game.bricks.map(b => b.destroy()))
     game.particles.push(...particles)
     game.bricks = game.bricks.filter(b => b.alive())

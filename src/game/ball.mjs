@@ -14,7 +14,6 @@ export default class Ball {
     this.v = v
     this.bounce = 0
     this.theta = Math.PI * (1.2 + Math.random() * 0.6)
-    this.intensity = 0
   }
   state() {
     const { v, dx, dy } = this.velocity(1)
@@ -37,12 +36,12 @@ export default class Ball {
     const colliders = [container, paddle].concat(bricks)
     const hit = this.nearest(colliders, v)
 
-    this.intensity = 0
+    let intensity = 0
 
     if (!hit) {
       this.x += dx * v
       this.y += dy * v
-      return [true, false]
+      return [true, false, intensity]
     }
 
     this.x += dx * (hit.dist - BIAS)
@@ -67,15 +66,15 @@ export default class Ball {
     }
 
     this.bounce++
-    this.intensity++
+    intensity++
     if (hit.target.onHit) {
-      this.intensity += hit.target.onHit(dx, dy)
+      intensity += hit.target.onHit(dx, dy)
     }
 
     if (hit.target === container && hit.dir === UP) {
-      // return [false, false]
+      // return [false, false, intensity]
     }
-    return [true, true]
+    return [true, true, intensity]
   }
   nearest(targets, limit) {
     return targets.reduce((prev, target) => {
