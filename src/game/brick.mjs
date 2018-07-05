@@ -8,6 +8,7 @@ export default class Brick {
     this.height = h
     this.lives = 2
     this.particles = []
+    this.special = Math.random() < 0.1
   }
   state() {
     return this.disabled ? undefined : {
@@ -16,6 +17,7 @@ export default class Brick {
       width: this.width,
       height: this.height,
       lives: this.lives,
+      special: this.special,
     }
   }
   alive() {

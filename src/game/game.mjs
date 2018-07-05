@@ -20,6 +20,12 @@ export default class Game {
     this.events = { ...EVENTS }
     this.lives = 3
     this.score = 0
+    this.modes = {
+      play: new GamePlay(),
+      win: new GameWin(),
+      lose: new GameLose()
+    }
+    this.mode = this.modes.play
   }
   movePaddle(x) {
     this.paddle.moveTo(x, this.paddle.y, 0, this.width)
@@ -35,47 +41,7 @@ export default class Game {
     }
   }
   fixedUpdate(tick, time) {
-    if (this.lives === 0) {
-      return this.fixedUpdateDead(tick, time)
-    }
-    if (this.bricks.length === 0) {
-      return this.fixedUpdateWon(tick, time)
-    }
-    this.fixedUpdatePlay(tick, time)
-  }
-  fixedUpdateDead(tick, time) {
-    if (this.bricks.length && Math.random() < 0.5) {
-      this.bricks[0].onHit(0, 0, 10)
-    }
-    const particles = [].concat(...this.bricks.map(b => b.destroy()))
-    this.particles.push(...particles)
-    this.bricks = this.bricks.filter(b => b.alive())
-    if (particles.length) {
-      this.events.smash = true
-    }
-  }
-  fixedUpdateWon(tick, time) {
-    this.ball = undefined
-  }
-  fixedUpdatePlay(tick, time) {
-    if (!this.ball) {
-      this.ball = new Ball(this.width * 0.1, this.width * 0.9, this.paddle.y - this.paddle.height * 3)
-    }
-    const [ball, bounce] = this.ball.move(tick, this, this.paddle, this.bricks)
-    if (ball) {
-      this.intensity += this.ball.intensity
-    }
-    else {
-      this.die()
-    }
-    this.events.bounce = bounce
-    const particles = [].concat(...this.bricks.map(b => b.destroy()))
-    this.particles.push(...particles)
-    this.bricks = this.bricks.filter(b => b.alive())
-    if (particles.length) {
-      this.events.smash = true
-      this.score += 70 + this.lives * 10
-    }
+    this.mode = this.mode.fixedUpdate(this, tick, time) || this.mode
   }
   update(delta, time) {
     this.intensity = Math.max(0, this.intensity * 0.95)
@@ -103,7 +69,56 @@ export default class Game {
       intensity: this.intensity,
       particles: this.particles.map(p => p.state()),
       lives: this.lives,
-      score: this.score,
+      score: this.score
+    }
+  }
+}
+
+class GamePlay {
+  fixedUpdate(game, tick, time) {
+    if (game.lives === 0) {
+      return game.modes.lose
+    }
+    if (game.bricks.length === 0) {
+      return game.modes.win
+    }
+    if (!game.ball) {
+      game.ball = new Ball(game.width * 0.1, game.width * 0.9, game.paddle.y - game.paddle.height * 3)
+    }
+    const [ball, bounce] = game.ball.move(tick, game, game.paddle, game.bricks)
+    if (ball) {
+      game.intensity += game.ball.intensity
+    }
+    else {
+      game.die()
+    }
+    game.events.bounce = bounce
+    const particles = [].concat(...game.bricks.map(b => b.destroy()))
+    game.particles.push(...particles)
+    game.bricks = game.bricks.filter(b => b.alive())
+    if (particles.length) {
+      game.events.smash = true
+      game.score += 70 + game.lives * 10
+    }
+  }
+}
+
+class GameWin {
+  fixedUpdate(game, tick, time) {
+    game.ball = undefined
+  }
+}
+
+class GameLose {
+  fixedUpdate(game, tick, time) {
+    if (game.bricks.length && Math.random() < 0.5) {
+      game.bricks[0].onHit(0, 0, 10)
+    }
+    const particles = [].concat(...game.bricks.map(b => b.destroy()))
+    game.particles.push(...particles)
+    game.bricks = game.bricks.filter(b => b.alive())
+    if (particles.length) {
+      game.events.smash = true
     }
   }
 }

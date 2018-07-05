@@ -32,7 +32,7 @@ export default class Graphics {
     const s = Array(lives).fill('❤️').join(' ')
     this.ctx.fillText(s, 10, 10)
     this.ctx.textAlign = 'right'
-    this.ctx.fillText(score, this.canvas.width - 15, 10)
+    this.ctx.fillText(`⭐️ ${score}`, this.canvas.width - 15, 10)
     if (bricks === 0) {
       this.ctx.font = '72pt sans-serif'
       this.ctx.textAlign = 'center'
@@ -71,12 +71,13 @@ export default class Graphics {
     this.ctx.fillRect(3, 1, brick.width - 6, 2)
 
     if (ball) {
+      const shine = brick.special ? 1 : 0.4
       this.ctx.beginPath()
       if (ball.x < brick.x + brick.width) {
         const dx = ball.x - brick.x
         const dy = ball.y - (brick.y + brick.height * 0.5)
         const d = dx * dx + dy * dy
-        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        const o = shine * Math.max(0, Math.min(1, 70000 / d))
         this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
         this.ctx.fillRect(1, 3, 2, brick.height - 6)
       }
@@ -84,7 +85,7 @@ export default class Graphics {
         const dx = ball.x - brick.x + brick.width
         const dy = ball.y - (brick.y + brick.height * 0.5)
         const d = dx * dx + dy * dy
-        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        const o = shine * Math.max(0, Math.min(1, 70000 / d))
         this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
         this.ctx.fillRect(brick.width - 4, 3, 2, brick.height - 6)
       }
@@ -93,7 +94,7 @@ export default class Graphics {
         const dx = ball.x - (brick.x + brick.width * 0.5)
         const dy = ball.y - brick.y
         const d = dx * dx + dy * dy
-        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        const o = shine * Math.max(0, Math.min(1, 70000 / d))
         this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
         this.ctx.fillRect(3, 1, brick.width - 6, 2)
       }
@@ -101,11 +102,14 @@ export default class Graphics {
         const dx = ball.x - (brick.x + brick.width * 0.5)
         const dy = ball.y - brick.y + brick.height
         const d = dx * dx + dy * dy
-        const o = 0.4 * Math.max(0, Math.min(1, 50000 / d))
+        const o = shine * Math.max(0, Math.min(1, 70000 / d))
         this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
         this.ctx.fillRect(3, brick.height - 4, brick.width - 6, 2)
       }
-      this.ctx.fill()
+      if (brick.special) {
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
+        this.ctx.fillRect(1, 1, brick.width - 2, brick.height - 2)
+      }
     }
     this.ctx.restore()
   }

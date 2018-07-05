@@ -8,7 +8,7 @@ const LEFT = 3
 const RIGHT = 4
 
 export default class Ball {
-  constructor(minX, maxX, y, v = 300) {
+  constructor(minX, maxX, y, v = 3000) {
     this.x = minX + (maxX - minX) * (Math.random() * 0.5 + 0.25)
     this.y = y
     this.v = v
@@ -73,7 +73,7 @@ export default class Ball {
     }
 
     if (hit.target === container && hit.dir === UP) {
-      return [false, false]
+      // return [false, false]
     }
     return [true, true]
   }
