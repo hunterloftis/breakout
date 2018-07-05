@@ -3,31 +3,31 @@ const MAX_DELTA = 64
 export default class Clock {
   constructor(tick = 16) {
     this.tick = tick
-    this.started = 0
+    this.clockTime = 0
+    this.realTime = 0
     this.frame = this.frame.bind(this)
     this._fixedUpdate = this._update = () => { }
   }
   start() {
-    this.started = this.time = performance.now()
+    this.realTime = performance.now()
     requestAnimationFrame(this.frame)
   }
   stop() {
-    this.started = 0
+    this.realTime = 0
   }
   frame() {
-    if (!this.started) return
+    if (!this.realTime) return
 
     const now = performance.now()
-    let delta = now - this.time
-    if (delta > MAX_DELTA) {
-      this.time = now - MAX_DELTA
-      delta = MAX_DELTA
+    const delta = Math.min(now - this.realTime, MAX_DELTA)
+    this.realTime = now - delta
+
+    while (this.realTime + this.tick <= now) {
+      this.realTime += this.tick
+      this.clockTime += this.tick
+      this._fixedUpdate(this.tick, this.clockTime)
     }
-    while (this.time + this.tick < now) {
-      this.time += this.tick
-      this._fixedUpdate(this.tick, this.time - this.started)
-    }
-    this._update(delta, now - this.started)
+    this._update(delta, this.clockTime)
     requestAnimationFrame(this.frame)
   }
   fixedUpdate(fn) {

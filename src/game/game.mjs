@@ -7,7 +7,10 @@ const BALL_DELAY = 1000
 const EVENTS = {
   bounce: false,
   smash: false,
-  death: false
+  death: false,
+  ping: false,
+  miss: false,
+  win: false,
 }
 
 export default class Game {
@@ -79,6 +82,7 @@ class GamePlay {
       return game.modes.lose
     }
     if (game.bricks.length === 0) {
+      game.events.win = true
       return game.modes.win
     }
     if (!game.ball && time > this.nextBall) {
@@ -91,6 +95,7 @@ class GamePlay {
         game.ball = undefined
         game.lives--
         this.nextBall = time + BALL_DELAY
+        game.events.miss = true
       }
       game.intensity += intensity
       game.events.bounce = bounce
@@ -121,7 +126,7 @@ class GameLose {
     game.particles.push(...particles)
     game.bricks = game.bricks.filter(b => b.alive())
     if (particles.length) {
-      game.events.smash = true
+      game.events.ping = true
     }
   }
 }

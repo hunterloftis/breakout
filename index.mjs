@@ -30,3 +30,7 @@ clock
   })
 
 graphics.render(game.state(), 0, true)
+
+// debug
+window.game = game
+window.audio = audio
