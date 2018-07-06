@@ -1,4 +1,5 @@
 import Particle from './particle.mjs'
+import Power from './power.mjs'
 
 export default class Brick {
   constructor(x, y, w, h) {
@@ -8,7 +9,8 @@ export default class Brick {
     this.height = h
     this.lives = 2
     this.particles = []
-    this.special = Math.random() < 0.1
+    this.power = undefined
+    this.hasPower = Math.random() < 0.1
   }
   state() {
     return this.disabled ? undefined : {
@@ -17,15 +19,20 @@ export default class Brick {
       width: this.width,
       height: this.height,
       lives: this.lives,
-      special: this.special,
+      hasPower: this.hasPower,
     }
   }
   alive() {
     return this.lives > 0
   }
-  destroy() {
+  flushParticles() {
     const p = this.particles
     this.particles = []
+    return p
+  }
+  flushPower() {
+    const p = this.power
+    this.power = undefined
     return p
   }
   box() {
@@ -47,6 +54,9 @@ export default class Brick {
           this.particles.push(new Particle(x, y, dx, dy))
         }
       }
+    }
+    if (this.hasPower) {
+      this.power = new Power(this.x + this.width * 0.5, this.y + this.height * 0.5, dx, dy)
     }
     return 5
   }

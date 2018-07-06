@@ -22,6 +22,7 @@ export default class Game {
     this.bricks = bricks(40, height * 0.1, width - 40, height * 0.5, 16, 8)
     this.intensity = 0
     this.particles = []
+    this.powers = []
     this.events = { ...EVENTS }
     this.lives = 3
     this.score = 0
@@ -66,6 +67,7 @@ export default class Game {
       bricks: this.bricks.map(b => b.state()),
       intensity: this.intensity,
       particles: this.particles.map(p => p.state()),
+      powers: this.powers.map(p => p.state()),
       lives: this.lives,
       score: this.score
     }
@@ -101,30 +103,38 @@ class GamePlay {
       game.events.bounce = bounce
     }
 
-    const particles = [].concat(...game.bricks.map(b => b.destroy()))
-    game.particles.push(...particles)
+    const particles = [].concat(...game.bricks.map(b => b.flushParticles()))
+    const powers = game.bricks.map(b => b.flushPower()).filter(p => p)
     game.bricks = game.bricks.filter(b => b.alive())
+
+    game.particles.push(...particles)
     if (particles.length) {
       game.events.smash = true
       game.score += 70 + game.lives * 10
     }
+
+    game.powers.push(...powers)
+    game.powers = game.powers.filter(p => p.fixedUpdate(tick, time))
   }
 }
 
 class GameWin {
   fixedUpdate(game, tick, time) {
     game.ball = undefined
+    game.powers = []
   }
 }
 
 class GameLose {
   fixedUpdate(game, tick, time) {
+    game.powers = []
     if (game.bricks.length && Math.random() < 0.5) {
       game.bricks[0].onHit(0, 0, 10)
     }
-    const particles = [].concat(...game.bricks.map(b => b.destroy()))
-    game.particles.push(...particles)
+    const particles = [].concat(...game.bricks.map(b => b.flushParticles()))
     game.bricks = game.bricks.filter(b => b.alive())
+
+    game.particles.push(...particles)
     if (particles.length) {
       game.events.ping = true
     }

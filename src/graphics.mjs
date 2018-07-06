@@ -19,6 +19,7 @@ export default class Graphics {
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.lives, state.bricks.length, state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
+    state.powers.forEach(p => this.renderPower(p))
     this.ctx.restore()
 
     this.renderStats(state.lives, state.bricks.length, state.score)
@@ -71,7 +72,7 @@ export default class Graphics {
     this.ctx.fillRect(3, 1, brick.width - 6, 2)
 
     if (ball) {
-      const shine = brick.special ? 1 : 0.4
+      const shine = brick.hasPower ? 1 : 0.4
       this.ctx.beginPath()
       if (ball.x < brick.x + brick.width) {
         const dx = ball.x - brick.x
@@ -106,7 +107,7 @@ export default class Graphics {
         this.ctx.fillStyle = `rgba(255, 255, 255, ${o})`
         this.ctx.fillRect(3, brick.height - 4, brick.width - 6, 2)
       }
-      if (brick.special) {
+      if (brick.hasPower) {
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
         this.ctx.fillRect(1, 1, brick.width - 2, brick.height - 2)
       }
@@ -116,6 +117,15 @@ export default class Graphics {
   renderParticle(part) {
     this.ctx.fillStyle = BRICK_COLORS[0] || '#A40606'
     this.ctx.fillRect(part.x - 1, part.y - 1, 3, 3)
+  }
+  renderPower(p) {
+    this.ctx.save()
+    this.ctx.font = '14pt sans-serif'
+    this.ctx.fillStyle = '#ffffff'
+    this.ctx.textAlign = 'center'
+    this.ctx.textBaseline = 'middle'
+    this.ctx.fillText('🏓', p.x, p.y)
+    this.ctx.restore()
   }
   renderBall(ball, delta) {
     if (!ball) return
