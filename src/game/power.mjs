@@ -1,4 +1,4 @@
-const GRAVITY = -1
+const GRAVITY = -2
 const LEVEL = 20
 const MOMENTUM = 0.99
 const DURATION = 20000

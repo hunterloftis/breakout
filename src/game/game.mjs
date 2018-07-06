@@ -1,7 +1,7 @@
 import Paddle from './paddle.mjs'
 import Ball from './ball.mjs'
-import Brick from './brick.mjs'
 import Power from './power.mjs'
+import Level from './level.mjs'
 
 const BALL_DELAY = 1000
 const PADDLE_WIDTH = 100
@@ -21,8 +21,9 @@ export default class Game {
     this.height = height
     this.paddle = new Paddle(width * 0.5, this.height - 30, PADDLE_WIDTH)
     this.ball = undefined
-    this.bricks = bricks(40, height * 0.1, width - 40, height * 0.5, 16, 8)
+    this.level = 1
     this.intensity = 0
+    this.bricks = Level(this.level, this.box())
     this.particles = []
     this.powers = []
     this.clones = []
@@ -32,7 +33,8 @@ export default class Game {
     this.modes = {
       play: new GamePlay(),
       win: new GameWin(),
-      lose: new GameLose()
+      lose: new GameLose(),
+      clear: new GameClear(),
     }
     this.mode = this.modes.play
   }
@@ -73,7 +75,8 @@ export default class Game {
       clones: this.clones.map(c => c.state()),
       intensity: this.intensity,
       lives: this.lives,
-      score: this.score
+      score: this.score,
+      level: this.level,
     }
   }
 }
@@ -89,7 +92,10 @@ class GamePlay {
     }
     if (game.bricks.length === 0) {
       game.events.win = true
-      return game.modes.win
+      return game.modes.clear
+    }
+    if (this.nextBall === 0) {
+      this.nextBall = time + BALL_DELAY
     }
     if (!game.ball && time > this.nextBall) {
       game.ball = new Ball(game.width * 0.1, game.width * 0.9, game.paddle.y - game.paddle.height * 3)
@@ -145,6 +151,22 @@ class GamePlay {
   }
 }
 
+class GameClear {
+  fixedUpdate(game, tick, time) {
+    game.ball = undefined
+    game.powers = []
+    game.clones = []
+    game.level++
+    game.bricks = Level(game.level, game.box())
+    if (!game.bricks.length) {
+      return game.modes.win
+    }
+    game.lives = Math.min(5, game.lives + 1)
+    game.modes.play.nextBall = 0
+    return game.modes.play
+  }
+}
+
 class GameWin {
   fixedUpdate(game, tick, time) {
     game.ball = undefined
@@ -170,23 +192,4 @@ class GameLose {
       game.events.ping = true
     }
   }
-}
-
-function bricks(left, top, right, bottom, cols, rows) {
-  const b = []
-  const width = right - left
-  const height = bottom - top
-  const dx = width / cols
-  const dy = height / rows
-  for (let y = 0; y < rows; y += 2) {
-    for (let x = (y / 2 % 2); x < (cols - y / 2 % 2); x++) {
-      b.push(new Brick(left + x * dx, top + y * dy, dx, dy))
-    }
-  }
-  const n = Math.ceil(b.length * 0.15)
-  while (b.filter(b => b.hasPower).length < n) {
-    const i = Math.floor(Math.random() * b.length)
-    b[i].hasPower = true
-  }
-  return b
 }

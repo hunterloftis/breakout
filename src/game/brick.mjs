@@ -2,12 +2,12 @@ import Particle from './particle.mjs'
 import Power from './power.mjs'
 
 export default class Brick {
-  constructor(x, y, w, h) {
+  constructor(x, y, w, h, lives = 2) {
     this.x = x
     this.y = y
     this.width = w
     this.height = h
-    this.lives = 2
+    this.lives = lives
     this.particles = []
     this.power = undefined
     this.hasPower = false

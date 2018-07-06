@@ -39,7 +39,7 @@ export default class Graphics {
     this.ctx.fillText(s, 10, 10)
     this.ctx.textAlign = 'right'
     this.ctx.fillText(`⭐️ ${score}`, this.canvas.width - 15, 10)
-    if (bricks === 0) {
+    if (bricks === 0 && score > 0) {
       this.ctx.font = '72pt sans-serif'
       this.ctx.textAlign = 'center'
       this.ctx.textBaseline = 'middle'
