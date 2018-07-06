@@ -141,7 +141,7 @@ class GamePlay {
     }
 
     game.powers.push(...powers)
-    game.powers = game.powers.filter(p => p.fixedUpdate(tick, time))
+    game.powers = game.powers.filter(p => p.fixedUpdate(tick, time, game.powers, game.width))
   }
 }
 

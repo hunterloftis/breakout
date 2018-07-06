@@ -2,6 +2,9 @@ const GRAVITY = -1
 const LEVEL = 20
 const MOMENTUM = 0.99
 const DURATION = 20000
+const SPACING = 70
+const MARGINS = 150
+const MAX_SPEED = 150
 const TYPES = {
   BIG_PADDLE: 0,
   TRIPLE_SCORE: 1,
@@ -33,7 +36,7 @@ export default class Power {
       remaining: this.remaining,
     }
   }
-  fixedUpdate(tick, time) {
+  fixedUpdate(tick, time, powers, width) {
     this.remaining = Math.max(0, this.remaining - tick)
     const secs = tick / 1000
     const vx = this.x - this.x1
@@ -42,9 +45,31 @@ export default class Power {
     this.y1 = this.y
     this.x += vx * MOMENTUM
     this.y += vy * MOMENTUM + GRAVITY * secs
+    powers.forEach(p => {
+      if (p === this) return
+      this.repel(p.x, p.y, SPACING, tick)
+    })
+    this.repel(0, 0, MARGINS, tick)
+    this.repel(width, 0, MARGINS, tick)
+    const dx = this.x - this.x1
+    const dy = this.y - this.y1
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const max = MAX_SPEED * tick / 1000
+    if (dist > max) {
+      this.x = this.x1 + dx * (max / dist)
+      this.y = this.y1 + dy * (max / dist)
+    }
     if (this.remaining > 0 && this.y < LEVEL) {
       this.y = LEVEL
     }
     return this.y < 800 && this.y > -10
+  }
+  repel(x, y, range, tick) {
+    const dx = this.x - x
+    const dy = this.y - y
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const force = Math.max(0, range - dist) * tick / 1000
+    this.x += dx * force
+    this.y += dy * force
   }
 }
