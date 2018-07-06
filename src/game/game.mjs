@@ -25,6 +25,7 @@ export default class Game {
     this.intensity = 0
     this.particles = []
     this.powers = []
+    this.clones = []
     this.events = { ...EVENTS }
     this.lives = 3
     this.score = 0
@@ -69,6 +70,7 @@ export default class Game {
       bricks: this.bricks.map(b => b.state()),
       particles: this.particles.map(p => p.state()),
       powers: this.powers.map(p => p.state()),
+      clones: this.clones.map(c => c.state()),
       intensity: this.intensity,
       lives: this.lives,
       score: this.score
@@ -99,7 +101,16 @@ class GamePlay {
     game.paddle.fixedUpdate(tick, time)
 
     if (game.ball) {
+      const superBall = !!game.powers.find(p => p.type === Power.types().SUPER_BALL)
+      game.ball.setPower(superBall ? 10 : 1)
+
+      const cloneBalls = game.powers.filter(p => p.type === Power.types().CLONE_BALL).length
+      game.ball.setClones(cloneBalls)
+
       const [inPlay, bounce, intensity] = game.ball.move(tick, game, game.paddle, game.bricks)
+      const clones = game.ball.flushClones()
+      game.clones.push(...clones)
+
       if (!inPlay) {
         game.ball = undefined
         game.lives--
@@ -109,6 +120,13 @@ class GamePlay {
       game.intensity += intensity
       game.events.bounce = bounce
     }
+
+    game.clones = game.clones.filter(c => {
+      const [inPlay, bounce, intensity] = c.move(tick, game, game.paddle, game.bricks)
+      game.intensity += intensity
+      game.events.bounce = game.events.bounce || bounce
+      return inPlay
+    })
 
     const particles = [].concat(...game.bricks.map(b => b.flushParticles()))
     const powers = game.bricks.map(b => b.flushPower()).filter(p => p)
@@ -131,6 +149,7 @@ class GameWin {
   fixedUpdate(game, tick, time) {
     game.ball = undefined
     game.powers = []
+    game.clones = []
   }
 }
 
@@ -138,6 +157,8 @@ class GameLose {
   fixedUpdate(game, tick, time) {
     game.ball = undefined
     game.powers = []
+    game.clones = []
+
     if (game.bricks.length && Math.random() < 0.5) {
       game.bricks[0].onHit(0, 0, 10)
     }
@@ -161,6 +182,11 @@ function bricks(left, top, right, bottom, cols, rows) {
     for (let x = (y / 2 % 2); x < (cols - y / 2 % 2); x++) {
       b.push(new Brick(left + x * dx, top + y * dy, dx, dy))
     }
+  }
+  const n = Math.ceil(b.length * 0.1)
+  while (b.filter(b => b.hasPower).length < n) {
+    const i = Math.floor(Math.random() * b.length)
+    b[i].hasPower = true
   }
   return b
 }

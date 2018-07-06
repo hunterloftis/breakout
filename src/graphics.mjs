@@ -1,6 +1,6 @@
 
 const BRICK_COLORS = ['#A40606', '#D98324']
-const POWER_GRAPHIC = ['🏓', 'x3']
+const POWER_GRAPHIC = ['🏓', 'x3', '💥', '🐇']
 
 export default class Graphics {
   constructor(canvas) {
@@ -8,8 +8,11 @@ export default class Graphics {
     this.canvas.style.background = '#000000'
     this.ctx = canvas.getContext('2d')
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.time = 0
   }
   render(state, delta, paused = false) {
+    this.time += delta
+
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.33)'
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
@@ -18,6 +21,7 @@ export default class Graphics {
       this.ctx.translate(Math.random() * state.intensity, Math.random() * state.intensity)
     }
     state.bricks.forEach(b => this.renderBrick(b, state.ball))
+    state.clones.forEach(c => this.renderClone(c))
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.lives, state.bricks.length, state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
@@ -109,7 +113,7 @@ export default class Graphics {
         this.ctx.fillRect(3, brick.height - 4, brick.width - 6, 2)
       }
       if (brick.hasPower) {
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
+        this.ctx.fillStyle = `rgba(255, 255, 255, 0.3)`
         this.ctx.fillRect(1, 1, brick.width - 2, brick.height - 2)
       }
     }
@@ -141,8 +145,19 @@ export default class Graphics {
     if (!ball) return
     this.ctx.save()
     this.ctx.translate(ball.x, ball.y)
+    if (ball.power > 1) {
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'
+      this.ctx.fillRect(-6, -6, 14, 14)
+    }
     this.ctx.fillStyle = '#ffffff'
     this.ctx.fillRect(-3, -3, 7, 7)
+    this.ctx.restore()
+  }
+  renderClone(clone) {
+    this.ctx.save()
+    this.ctx.translate(clone.x, clone.y)
+    this.ctx.fillStyle = '#00ffff'
+    this.ctx.fillRect(-2, -2, 5, 5)
     this.ctx.restore()
   }
   renderPaddle(lives, bricks, paddle, ball) {

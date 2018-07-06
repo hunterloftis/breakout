@@ -14,6 +14,9 @@ export default class Ball {
     this.v = v
     this.bounce = 0
     this.theta = Math.PI * (1.2 + Math.random() * 0.6)
+    this.power = 1
+    this.clones = 0
+    this.cloneBalls = []
   }
   state() {
     const { v, dx, dy } = this.velocity(1)
@@ -21,7 +24,8 @@ export default class Ball {
       x: this.x,
       y: this.y,
       vx: dx * v,
-      vy: dy * v
+      vy: dy * v,
+      power: this.power,
     }
   }
   velocity(tick) {
@@ -30,6 +34,17 @@ export default class Ball {
     const dy = Math.sin(this.theta)
     const v = Math.min(500, (this.v + this.bounce * ACCELERATION) * secs)
     return { v, dx, dy }
+  }
+  setPower(p) {
+    this.power = p
+  }
+  setClones(c) {
+    this.clones = c
+  }
+  flushClones() {
+    const c = this.cloneBalls
+    this.cloneBalls = []
+    return c
   }
   move(tick, container, paddle, bricks) {
     const { v, dx, dy } = this.velocity(tick)
@@ -54,6 +69,9 @@ export default class Ball {
       if (hit.target === paddle) {
         const px = (this.x - paddle.x) / (paddle.width * 0.5)
         this.theta = Math.PI * -0.5 + Math.PI * 0.3 * px
+        for (let i = 0; i < this.clones; i++) {
+          this.cloneBalls.push(new Ball(this.x, this.x, this.y, this.v))
+        }
       } else {
         this.theta = Math.atan2(-Math.abs(dy), dx)
       }
@@ -68,7 +86,7 @@ export default class Ball {
     this.bounce++
     intensity++
     if (hit.target.onHit) {
-      intensity += hit.target.onHit(dx, dy)
+      intensity += hit.target.onHit(dx, dy, this.power)
     }
 
     if (hit.target === container && hit.dir === UP) {

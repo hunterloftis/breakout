@@ -10,7 +10,7 @@ export default class Brick {
     this.lives = 2
     this.particles = []
     this.power = undefined
-    this.hasPower = Math.random() < 0.1
+    this.hasPower = false
   }
   state() {
     return this.disabled ? undefined : {
