@@ -183,7 +183,7 @@ function bricks(left, top, right, bottom, cols, rows) {
       b.push(new Brick(left + x * dx, top + y * dy, dx, dy))
     }
   }
-  const n = Math.ceil(b.length * 0.1)
+  const n = Math.ceil(b.length * 0.15)
   while (b.filter(b => b.hasPower).length < n) {
     const i = Math.floor(Math.random() * b.length)
     b[i].hasPower = true
