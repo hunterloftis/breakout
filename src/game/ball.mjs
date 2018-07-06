@@ -9,11 +9,11 @@ const RIGHT = 4
 
 export default class Ball {
   constructor(minX, maxX, y, v = 300) {
-    this.x = minX + (maxX - minX) * (Math.random() * 0.5 + 0.25)
+    this.x = minX + (maxX - minX) * (Math.random() * 0.5 + 0.2)
     this.y = y
     this.v = v
     this.bounce = 0
-    this.theta = Math.PI * (1.2 + Math.random() * 0.6)
+    this.theta = Math.PI * (1.3 + Math.random() * 0.4)
     this.power = 1
     this.clones = 0
     this.cloneBalls = []
