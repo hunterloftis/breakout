@@ -1,8 +1,10 @@
+const RESIZE_TIME = 250
+
 export default class Paddle {
   constructor(x, y, width = 100, height = 10) {
     this.x = x
     this.y = y
-    this.width = width
+    this.width = this.targetWidth = width
     this.height = height
   }
   state() {
@@ -26,5 +28,11 @@ export default class Paddle {
       bottom: this.y + this.height * 0.5,
       solid: true
     }
+  }
+  fixedUpdate(tick, time) {
+    this.width += (this.targetWidth - this.width) * Math.min(1, tick / RESIZE_TIME)
+  }
+  resize(w) {
+    this.targetWidth = w
   }
 }

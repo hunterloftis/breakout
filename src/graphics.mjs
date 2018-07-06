@@ -19,11 +19,10 @@ export default class Graphics {
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.lives, state.bricks.length, state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
-    state.powers.forEach(p => this.renderPower(p))
-    this.ctx.restore()
-
     this.renderStats(state.lives, state.bricks.length, state.score)
+    state.powers.forEach(p => this.renderPower(p))
     this.renderPause(paused)
+    this.ctx.restore()
   }
   renderStats(lives, bricks, score) {
     this.ctx.save()
@@ -120,11 +119,20 @@ export default class Graphics {
   }
   renderPower(p) {
     this.ctx.save()
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
+    this.ctx.translate(p.x, p.y)
+    this.ctx.beginPath()
+    this.ctx.arc(0, 0, 40, 0, Math.PI * 2)
+    this.ctx.fill()
+    this.ctx.beginPath()
+    this.ctx.arc(0, 0, 20, 0, Math.PI * 2)
+    this.ctx.fill()
+    this.ctx.beginPath()
     this.ctx.font = '14pt sans-serif'
     this.ctx.fillStyle = '#ffffff'
     this.ctx.textAlign = 'center'
     this.ctx.textBaseline = 'middle'
-    this.ctx.fillText('🏓', p.x, p.y)
+    this.ctx.fillText('🏓', 0, 0)
     this.ctx.restore()
   }
   renderBall(ball, delta) {

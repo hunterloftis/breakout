@@ -1,7 +1,7 @@
 const GRAVITY = -1
 const LEVEL = 20
 const MOMENTUM = 0.99
-const DURATION = 20000
+const DURATION = 10000
 const TYPES = {
   BIG_PADDLE: 1
 }

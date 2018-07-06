@@ -1,8 +1,10 @@
 import Paddle from './paddle.mjs'
 import Ball from './ball.mjs'
 import Brick from './brick.mjs'
+import Power from './power.mjs'
 
 const BALL_DELAY = 1000
+const PADDLE_WIDTH = 100
 
 const EVENTS = {
   bounce: false,
@@ -17,7 +19,7 @@ export default class Game {
   constructor(width, height) {
     this.width = width
     this.height = height
-    this.paddle = new Paddle(width * 0.5, this.height - 30)
+    this.paddle = new Paddle(width * 0.5, this.height - 30, PADDLE_WIDTH)
     this.ball = undefined
     this.bricks = bricks(40, height * 0.1, width - 40, height * 0.5, 16, 8)
     this.intensity = 0
@@ -90,6 +92,10 @@ class GamePlay {
     if (!game.ball && time > this.nextBall) {
       game.ball = new Ball(game.width * 0.1, game.width * 0.9, game.paddle.y - game.paddle.height * 3)
     }
+
+    const bigPaddle = game.powers.find(p => p.type === Power.types().BIG_PADDLE)
+    game.paddle.resize(bigPaddle ? PADDLE_WIDTH * 2 : PADDLE_WIDTH)
+    game.paddle.fixedUpdate(tick, time)
 
     if (game.ball) {
       const [inPlay, bounce, intensity] = game.ball.move(tick, game, game.paddle, game.bricks)
