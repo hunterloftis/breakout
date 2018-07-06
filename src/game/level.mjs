@@ -49,5 +49,9 @@ const levels = [
     if (y === 0 || y === ROWS - 1) return 2
     if (y > 1 && y < ROWS - 2 && x >= 3 && x <= COLS - 4 && x % 2 === 1) return 1
     return 0
+  },
+  (x, y) => {
+    if (y === 0 || y === ROWS - 1) return 1
+    return (x + y) % 3 === 0 ? 2 : 0
   }
 ]
