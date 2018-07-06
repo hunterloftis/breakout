@@ -14,9 +14,11 @@ export default class Power {
     return TYPES
   }
   constructor(x, y, dx, dy) {
-    const t = Math.floor(Math.random() * Object.keys(TYPES).length)
-    const type = Object.keys(TYPES)[t]
-    this.type = TYPES[type]
+    do {
+      const t = Math.floor(Math.random() * Object.keys(TYPES).length)
+      const type = Object.keys(TYPES)[t]
+      this.type = TYPES[type]
+    } while (this.type === TYPES.TRIPLE_SCORE)  // disable TRIPLE_SCORE, it doesn't add to the fun
     this.endTime = 0
     this.x = this.x1 = x
     this.y = this.y1 = y
