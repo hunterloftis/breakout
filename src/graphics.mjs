@@ -60,7 +60,7 @@ export default class Graphics {
     this.ctx.fillStyle = '#ffffff'
     this.ctx.textAlign = 'center'
     this.ctx.textBaseline = 'middle'
-    this.ctx.fillText('🖱', this.canvas.width * 0.5, this.canvas.height * 0.5)
+    this.ctx.fillText('Click to start', this.canvas.width * 0.5, this.canvas.height * 0.5)
     this.ctx.restore()
   }
   renderBrick(brick, ball) {
@@ -124,21 +124,23 @@ export default class Graphics {
     this.ctx.fillRect(part.x - 1, part.y - 1, 3, 3)
   }
   renderPower(p) {
+    const secs = Math.round(p.remaining / 1000)
+    const text = `${secs} ${POWER_GRAPHIC[p.type] || '?'}`
     this.ctx.save()
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.025)'
     this.ctx.translate(p.x, p.y)
     this.ctx.beginPath()
-    this.ctx.arc(0, 0, 40, 0, Math.PI * 2)
+    this.ctx.arc(0, 0, 45, 0, Math.PI * 2)
     this.ctx.fill()
     this.ctx.beginPath()
-    this.ctx.arc(0, 0, 20, 0, Math.PI * 2)
+    this.ctx.arc(0, 0, 30, 0, Math.PI * 2)
     this.ctx.fill()
     this.ctx.beginPath()
     this.ctx.font = '14pt sans-serif'
     this.ctx.fillStyle = '#ffffff'
     this.ctx.textAlign = 'center'
     this.ctx.textBaseline = 'middle'
-    this.ctx.fillText(POWER_GRAPHIC[p.type] || '?', 0, 0)
+    this.ctx.fillText(text, 0, 0)
     this.ctx.restore()
   }
   renderBall(ball, delta) {

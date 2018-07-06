@@ -19,7 +19,7 @@ export default class Power {
       const type = Object.keys(TYPES)[t]
       this.type = TYPES[type]
     } while (this.type === TYPES.TRIPLE_SCORE)  // disable TRIPLE_SCORE, it doesn't add to the fun
-    this.endTime = 0
+    this.remaining = DURATION
     this.x = this.x1 = x
     this.y = this.y1 = y
     this.x += dx + Math.random() - 0.5
@@ -30,12 +30,11 @@ export default class Power {
       type: this.type,
       x: this.x,
       y: this.y,
+      remaining: this.remaining,
     }
   }
   fixedUpdate(tick, time) {
-    if (!this.endTime) {
-      this.endTime = time + DURATION
-    }
+    this.remaining = Math.max(0, this.remaining - tick)
     const secs = tick / 1000
     const vx = this.x - this.x1
     const vy = this.y - this.y1
@@ -43,7 +42,7 @@ export default class Power {
     this.y1 = this.y
     this.x += vx * MOMENTUM
     this.y += vy * MOMENTUM + GRAVITY * secs
-    if (time < this.endTime && this.y < LEVEL) {
+    if (this.remaining > 0 && this.y < LEVEL) {
       this.y = LEVEL
     }
     return this.y < 800 && this.y > -10
