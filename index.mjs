@@ -25,8 +25,8 @@ clock
   })
   .update((delta, time) => {
     game.update(delta, time)
-    graphics.render(game.state(), delta)
     audio.play(game.flushEvents(), delta, time)
+    graphics.render(game.state(), delta)
   })
 
 graphics.render(game.state(), 0, true)

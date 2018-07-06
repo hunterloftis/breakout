@@ -1,4 +1,6 @@
+
 const BRICK_COLORS = ['#A40606', '#D98324']
+const POWER_GRAPHIC = ['🏓', 'x3']
 
 export default class Graphics {
   constructor(canvas) {
@@ -132,7 +134,7 @@ export default class Graphics {
     this.ctx.fillStyle = '#ffffff'
     this.ctx.textAlign = 'center'
     this.ctx.textBaseline = 'middle'
-    this.ctx.fillText('🏓', 0, 0)
+    this.ctx.fillText(POWER_GRAPHIC[p.type] || '?', 0, 0)
     this.ctx.restore()
   }
   renderBall(ball, delta) {

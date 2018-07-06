@@ -3,7 +3,8 @@ const LEVEL = 20
 const MOMENTUM = 0.99
 const DURATION = 10000
 const TYPES = {
-  BIG_PADDLE: 1
+  BIG_PADDLE: 0,
+  TRIPLE_SCORE: 1,
 }
 
 export default class Power {
@@ -11,7 +12,9 @@ export default class Power {
     return TYPES
   }
   constructor(x, y, dx, dy) {
-    this.type = TYPES.BIG_PADDLE
+    const t = Math.floor(Math.random() * Object.keys(TYPES).length)
+    const type = Object.keys(TYPES)[t]
+    this.type = TYPES[type]
     this.endTime = 0
     this.x = this.x1 = x
     this.y = this.y1 = y

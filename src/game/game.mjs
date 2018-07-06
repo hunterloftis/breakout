@@ -67,9 +67,9 @@ export default class Game {
       paddle: this.paddle.state(),
       ball: this.ball && this.ball.state(),
       bricks: this.bricks.map(b => b.state()),
-      intensity: this.intensity,
       particles: this.particles.map(p => p.state()),
       powers: this.powers.map(p => p.state()),
+      intensity: this.intensity,
       lives: this.lives,
       score: this.score
     }
@@ -93,8 +93,9 @@ class GamePlay {
       game.ball = new Ball(game.width * 0.1, game.width * 0.9, game.paddle.y - game.paddle.height * 3)
     }
 
-    const bigPaddle = game.powers.find(p => p.type === Power.types().BIG_PADDLE)
-    game.paddle.resize(bigPaddle ? PADDLE_WIDTH * 2 : PADDLE_WIDTH)
+    const bigPaddle = game.powers.filter(p => p.type === Power.types().BIG_PADDLE).length
+    const paddleSize = 1 + 0.5 * bigPaddle
+    game.paddle.resize(PADDLE_WIDTH * paddleSize)
     game.paddle.fixedUpdate(tick, time)
 
     if (game.ball) {
@@ -115,8 +116,10 @@ class GamePlay {
 
     game.particles.push(...particles)
     if (particles.length) {
+      const tripleScore = game.powers.filter(p => p.type === Power.types().TRIPLE_SCORE).length
+      const multiplier = 1 + 3 * tripleScore
       game.events.smash = true
-      game.score += 70 + game.lives * 10
+      game.score += (70 + game.lives * 10) * multiplier
     }
 
     game.powers.push(...powers)
@@ -133,6 +136,7 @@ class GameWin {
 
 class GameLose {
   fixedUpdate(game, tick, time) {
+    game.ball = undefined
     game.powers = []
     if (game.bricks.length && Math.random() < 0.5) {
       game.bricks[0].onHit(0, 0, 10)
