@@ -25,12 +25,12 @@ export default class Graphics {
     this.renderBall(state.ball, delta)
     this.renderPaddle(state.lives, state.bricks.length, state.paddle, state.ball)
     state.particles.forEach(p => this.renderParticle(p))
-    this.renderStats(state.lives, state.bricks.length, state.score)
+    this.renderStats(state.lives, state.bricks.length, state.score, state.level)
     state.powers.forEach(p => this.renderPower(p))
     this.renderPause(paused)
     this.ctx.restore()
   }
-  renderStats(lives, bricks, score) {
+  renderStats(lives, bricks, score, level) {
     this.ctx.save()
     this.ctx.fillStyle = '#ffffff'
     this.ctx.font = '14pt sans-serif'
@@ -38,7 +38,7 @@ export default class Graphics {
     const s = Array(lives).fill('❤️').join(' ')
     this.ctx.fillText(s, 10, 10)
     this.ctx.textAlign = 'right'
-    this.ctx.fillText(`⭐️ ${score}`, this.canvas.width - 15, 10)
+    this.ctx.fillText(`Level ${level} ⭐️ ${score}`, this.canvas.width - 15, 10)
     if (bricks === 0 && score > 0) {
       this.ctx.font = '72pt sans-serif'
       this.ctx.textAlign = 'center'

@@ -156,11 +156,11 @@ class GameClear {
     game.ball = undefined
     game.powers = []
     game.clones = []
-    game.level++
-    game.bricks = Level(game.level, game.box())
+    game.bricks = Level(game.level + 1, game.box())
     if (!game.bricks.length) {
       return game.modes.win
     }
+    game.level++
     game.lives = Math.min(5, game.lives + 1)
     game.modes.play.nextBall = 0
     return game.modes.play
